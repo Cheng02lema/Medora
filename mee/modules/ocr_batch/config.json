@@ -1,8 +1,0 @@
-{
-  "api_url": "https://paddleocr.aistudio-app.com/api/v2/ocr/jobs",
-  "model": "PaddleOCR-VL-1.5",
-  "preset": "screen_photo",
-  "token": "61419efeca78bcbd9b5718c2358328729909973b",
-  "input_dir": "/Users/qishuocheng/Desktop/研究/数据提取/中山项目持续/中山医院524/原始/兰大二院-沈海丽主任/王英（只有基线）",
-  "output_dir": "/Users/qishuocheng/Desktop/研究/数据提取/中山项目持续/中山医院524/ocr/测试"
-}

@@ -1,6 +1,0 @@
-<svg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg' fill='none'>
-  <circle cx='10' cy='10' r='9' fill='#f97316' opacity='0.12'/>
-  <circle cx='10' cy='10' r='6' fill='#f97316'/>
-  <path d='M10 6.5v4' stroke='white' stroke-width='1.7' stroke-linecap='round'/>
-  <circle cx='10' cy='12.8' r='1' fill='white'/>
-</svg>
