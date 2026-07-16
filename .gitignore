@@ -1,0 +1,53 @@
+# 依赖与构建产物
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+*.egg-info/
+dist/
+build/
+release/
+frontend/dist/
+*.tsbuildinfo
+
+# 本地备份（不上传）
+antigravity-backup-*/
+*-backup-*/
+
+# 工作区数据（含病人隐私，不要提交）
+antigravity/workspace/
+antigravity-pyqt5-archive-20260708/workspace/
+
+# 日志与临时文件
+*.log
+logs/
+*.log.*
+
+# 密钥与本地配置
+*.key
+*.pem
+.env
+.env.*
+**/api_config.json
+**/prompt_config.json
+!**/Api_config.example.json
+!**/Template_config.example.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*~
+
+# mee 子工具的可选产物
+mee/modules/medical_extractor/*.log
+mee/modules/medical_extractor/task_queue.bak.json
+mee/modules/medical_extractor/task_queue.json
+mee/output/
+
+# 示例病历 / 设计 demo / 旧归档（体积大，不上传）
+示例/
+测试/
+antigravity-pyqt5-archive-*/
+z_organized/

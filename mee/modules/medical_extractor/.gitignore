@@ -1,0 +1,57 @@
+# API密钥和敏感配置
+api_config.json
+template_config.json
+
+# Python编译文件
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv
+
+# IDE和编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# 日志文件
+*.log
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
+
+# 患者数据（保护隐私）
+*病历*.txt
+*患者*.txt
+*病例*.txt
+patient_*.txt
+medical_records/
+
+# 输出文件
+output/
+exports/
+results/
+
+# 测试文件
+test_*.py
+*_test.py
+.pytest_cache/
+.coverage
+htmlcov/

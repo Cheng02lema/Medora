@@ -1,0 +1,11 @@
+{
+  "mask_regions": [],
+  "enhance_params": {
+    "contrast": 2.8,
+    "sharpness": 3.5,
+    "brightness": 1.8,
+    "denoise": false,
+    "binarize": true,
+    "binarize_threshold": 140
+  }
+}

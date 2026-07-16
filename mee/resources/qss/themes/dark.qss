@@ -1,0 +1,28 @@
+/* 额外组件样式（深色） */
+QFrame#Card {
+    background-color: #1c2333;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 18px;
+}
+
+QStatusBar {
+    background: #111826;
+    color: #cbd5f5;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+QListWidget#NavList {
+    background: #111826;
+    border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+QListWidget#NavList::item {
+    padding: 14px 18px;
+    margin: 0;
+}
+
+QListWidget#NavList::item:selected {
+    background-color: rgba(37,99,235,0.35);
+    color: #ffffff;
+}

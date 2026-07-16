@@ -1,0 +1,111 @@
+{
+  "name": "medora",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Medora — 医疗病历数据提取工作台",
+  "main": "electron/main.js",
+  "author": "Medora",
+  "scripts": {
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:electron": "wait-on http://localhost:5173 && electron .",
+    "dev": "concurrently -k -n vite,electron \"npm run dev:frontend\" \"npm run dev:electron\"",
+    "build:frontend": "npm --prefix frontend run build",
+    "build:backend": "bash scripts/build-backend.sh",
+    "build": "npm run build:frontend",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:win": "npm run build && electron-builder --win"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3",
+    "electron": "^43.1.0",
+    "electron-builder": "^25.1.8",
+    "wait-on": "^9.0.10"
+  },
+  "build": {
+    "appId": "com.medora.app",
+    "productName": "Medora",
+    "copyright": "Copyright © Medora",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      "frontend/dist/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "backend",
+        "to": "antigravity/backend",
+        "filter": [
+          "**/*",
+          "!**/__pycache__/**",
+          "!**/*.pyc"
+        ]
+      },
+      {
+        "from": "__init__.py",
+        "to": "antigravity/__init__.py"
+      },
+      {
+        "from": "requirements.txt",
+        "to": "antigravity/requirements.txt"
+      },
+      {
+        "from": "scripts/run-backend.py",
+        "to": "run-backend.py"
+      },
+      {
+        "from": "engine",
+        "to": "antigravity/engine",
+        "filter": [
+          "**/*",
+          "!**/__pycache__/**",
+          "!**/*.pyc",
+          "!**/.DS_Store"
+        ]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "darkModeSupport": true
+    },
+    "dmg": {
+      "title": "Medora"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Medora"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Office"
+    }
+  }
+}

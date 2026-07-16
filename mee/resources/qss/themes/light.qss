@@ -1,0 +1,26 @@
+QFrame#Card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 18px;
+}
+
+QStatusBar {
+    background: #f1f5f9;
+    color: #475569;
+    border-top: 1px solid #e2e8f0;
+}
+
+QListWidget#NavList {
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+}
+
+QListWidget#NavList::item {
+    padding: 14px 18px;
+}
+
+QListWidget#NavList::item:selected {
+    background-color: rgba(37,99,235,0.15);
+    color: #1e293b;
+}

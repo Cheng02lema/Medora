@@ -1,0 +1,49 @@
+/* 基础排版与滚动条 */
+QWidget {
+    font-family: "DejaVu Sans", "Segoe UI", "PingFang SC", sans-serif;
+    font-size: 14px;
+    background-color: @BACKGROUND@;
+    color: @TEXT@;
+}
+
+QMainWindow::separator {
+    background: @BORDER@;
+    width: 1px;
+}
+
+QLabel#Title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+QLabel#SubTitle {
+    font-size: 14px;
+    color: @TEXT-SUBTLE@;
+    margin-bottom: 12px;
+}
+
+QLabel#SectionHeading {
+    font-weight: 600;
+}
+
+QLabel#CardTitle {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+QScrollBar:vertical {
+    background: transparent;
+    width: 10px;
+    margin: 2px;
+}
+
+QScrollBar::handle:vertical {
+    background: @SCROLL-HANDLE@;
+    border-radius: 5px;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0;
+}

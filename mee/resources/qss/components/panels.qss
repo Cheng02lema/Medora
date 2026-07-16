@@ -1,0 +1,78 @@
+/* 面板与导航 */
+QFrame#Card,
+QGroupBox,
+QFrame#Emphasis {
+    background-color: @SURFACE@;
+    border: 1px solid @BORDER@;
+    border-radius: 16px;
+    padding: 18px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 12px;
+    padding: 0 6px 2px 6px;
+    color: @TEXT-SUBTLE@;
+    font-weight: 600;
+}
+
+QToolBar {
+    background: @SURFACE@;
+    border-bottom: 1px solid @BORDER@;
+    spacing: 8px;
+}
+
+QStatusBar {
+    background: @SURFACE@;
+    color: @TEXT-SUBTLE@;
+    border-top: 1px solid @BORDER@;
+}
+
+QListWidget#NavList {
+    background: @SURFACE@;
+    border-right: 1px solid @BORDER@;
+}
+
+QListWidget#NavList::item {
+    padding: 16px 18px;
+    margin: 0;
+}
+
+QListWidget#NavList::item:selected {
+    background-color: @PRIMARY-FADE@;
+    color: @TEXT@;
+}
+
+QSplitter::handle {
+    background-color: transparent;
+}
+
+QMenu {
+    background: @SURFACE@;
+    border: 1px solid @BORDER@;
+    padding: 6px 0;
+}
+
+QMenu::item {
+    padding: 6px 20px;
+}
+
+QMenu::item:selected {
+    background-color: @PRIMARY-FADE@;
+}
+
+QTabBar::tab {
+    padding: 8px 18px;
+    border-bottom: 2px solid transparent;
+    color: @TEXT-SUBTLE@;
+    font-weight: 600;
+}
+
+QTabBar::tab:selected {
+    color: @TEXT@;
+    border-color: @PRIMARY@;
+}
+
+QTabBar::tab:hover:!selected {
+    color: @PRIMARY@;
+}

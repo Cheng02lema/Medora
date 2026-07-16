@@ -1,0 +1,31 @@
+<RCC>
+  <qresource prefix="/">
+    <file>icons/logo.svg</file>
+    <file>icons/theme_dark.svg</file>
+    <file>icons/theme_light.svg</file>
+    <file>icons/language.svg</file>
+    <file>icons/nav_pipeline.svg</file>
+    <file>icons/nav_prompt.svg</file>
+    <file>icons/nav_modules.svg</file>
+    <file>icons/nav_settings.svg</file>
+    <file>icons/status_success.svg</file>
+    <file>icons/status_warning.svg</file>
+    <file>icons/status_error.svg</file>
+    <file>icons/run.svg</file>
+    <file>icons/cancel.svg</file>
+    <file>icons/chevron_down.svg</file>
+    <file>fonts/DejaVuSans.ttf</file>
+    <file>fonts/DejaVuSansMono.ttf</file>
+    <file>fonts/LICENSE_DEJAVU</file>
+    <file>qss/components/base.qss</file>
+    <file>qss/components/buttons.qss</file>
+    <file>qss/components/inputs.qss</file>
+    <file>qss/components/lists_tables.qss</file>
+    <file>qss/components/typography.qss</file>
+    <file>qss/components/panels.qss</file>
+    <file>qss/components/status.qss</file>
+    <file>qss/themes/dark.qss</file>
+    <file>qss/themes/light.qss</file>
+    <file>qss/themes/high_contrast.qss</file>
+  </qresource>
+</RCC>

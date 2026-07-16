@@ -1,0 +1,31 @@
+{
+  "template_path": "template.xlsx",
+  "fields": [
+    {
+      "column": "来源文件",
+      "description": "文件名",
+      "type": "文本"
+    },
+    {
+      "column": "姓名",
+      "description": "患者姓名",
+      "type": "文本"
+    },
+    {
+      "column": "住院号",
+      "description": "住院号",
+      "type": "文本"
+    },
+    {
+      "column": "主诉",
+      "description": "主诉",
+      "type": "文本"
+    },
+    {
+      "column": "年龄",
+      "description": "年龄",
+      "type": "整数"
+    }
+  ],
+  "emr_format": "合成测试病历"
+}

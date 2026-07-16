@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(python:*)",
+      "Bash(chmod:*)",
+      "Bash(ls -la \"/Users/qishuocheng/Desktop/数据提取/示例\")",
+      "Read(//Users/qishuocheng/Desktop/数据提取/**)"
+    ]
+  }
+}

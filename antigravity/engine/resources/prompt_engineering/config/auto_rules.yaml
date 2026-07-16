@@ -1,0 +1,592 @@
+defaults:
+  variable_type: direct
+  synonym_delimiters:
+  - 、
+  - ，
+  - ' / '
+  - /
+  - ;
+  - ；
+  - ','
+  - ' '
+  rule_templates:
+    direct: 提取字段原文，未提及填-1。
+    existence: 1=存在/阳性；0=明确否认/阴性；-1=未提及。
+    report: 提取相关检查或描述的关键信息，未提及填-1。
+    numeric: 提取数值，去掉单位，按取值规则筛选，未提及填-1。
+    memo: 记录完整思考过程与出处。
+exact_fields:
+  姓名:
+    category: 基本信息
+    category_full: 一、基本信息（第一类：直接提取型）
+    variable_type: direct
+    synonyms:
+    - 患者姓名
+    - 姓名
+    - 患者
+    - 病人姓名
+    rules: 提取病历中明确标注的患者姓名，通常在病历首页；未提及→填**-1**
+  性别:
+    category: 基本信息
+    category_full: 一、基本信息（第一类：直接提取型）
+    variable_type: direct
+    synonyms:
+    - 性别
+    - 男
+    - 女
+    - 男性
+    - 女性
+    rules: 提取"男"或"女"；未提及→填**-1**
+  年龄:
+    category: 基本信息
+    category_full: 一、基本信息（第一类：直接提取型）
+    variable_type: direct
+    synonyms:
+    - 年龄
+    - 岁
+    - 周岁
+    - '"XX岁"'
+    rules: 提取具体数值，**不写"岁"**；如"48岁"→填写`48`；未提及→填**-1**
+  住院号:
+    category: 基本信息
+    category_full: 一、基本信息（第一类：直接提取型）
+    variable_type: direct
+    synonyms:
+    - 住院号
+    - 病案号
+    - 住院病案号
+    - 病历号
+    rules: 提取完整住院号；未提及→填**-1**
+  手机号:
+    category: 基本信息
+    category_full: 一、基本信息（第一类：直接提取型）
+    variable_type: direct
+    synonyms:
+    - 手机号
+    - 电话
+    - 联系电话
+    - 患者电话
+    - 本人电话
+    rules: 优先提取患者本人手机号；若无，提取联系人电话并注明；未提及→填**-1**
+  就诊时间:
+    category: 基本信息
+    category_full: 一、基本信息（第一类：直接提取型）
+    variable_type: direct
+    synonyms:
+    - 入院时间
+    - 入院日期
+    - 住院时间
+    rules: 提取入院日期，格式：YYYY-MM-DD；未提及→填**-1**
+  主诉:
+    category: 临床表现
+    category_full: 二、临床表现（第三类：报告内容提取）
+    variable_type: report
+    synonyms:
+    - 主诉
+    - 主要症状
+    - 以...入院
+    description: 患者就诊的主要症状及持续时间
+    rules: "- 提取病历中\"主诉\"栏目或\"以...入院\"的描述\n  - 保持原文简洁表述\n  - 未提及→填**-1**"
+    example: "- \"右眼闪光感伴视力逐渐下降8月\"\n  - \"反复双眼睑水肿3月\""
+  过敏史:
+    category: 既往史
+    category_full: 三、既往史（第二类：存在性判断）
+    variable_type: existence
+    synonyms:
+    - 过敏史
+    - 药物过敏
+    - 药物过敏史
+    - 过敏药物
+    rules: "- **1**：有过敏史（需在\"过敏药物名称\"中记录具体药物）\n  - **0**：明确\"无过敏史\"、\"否认过敏\"\n  -\
+      \ **-1**：未提及过敏史"
+  吸烟史:
+    category: 既往史
+    category_full: 三、既往史（第二类：存在性判断）
+    variable_type: existence
+    synonyms:
+    - 吸烟史
+    - 吸烟
+    - 抽烟
+    - 烟草使用史
+    rules: "- **1**：有吸烟史或现在吸烟\n  - **0**：明确否认吸烟或\"无吸烟史\"\n  - **-1**：未提及"
+  饮酒史:
+    category: 既往史
+    category_full: 三、既往史（第二类：存在性判断）
+    variable_type: existence
+    synonyms:
+    - 饮酒史
+    - 饮酒
+    - 嗜酒
+    - 酒精摄入史
+    rules: 同吸烟史
+  高血压:
+    category: 既往史
+    category_full: 三、既往史（第二类：存在性判断）
+    variable_type: existence
+    synonyms:
+    - 高血压
+    - 高血压病
+    - HTN
+    - hypertension
+    - 血压升高
+    - 原发性高血压
+    rules: "- **1**：诊断明确提及\"高血压\"或\"高血压病\"\n  - **0**：明确否认高血压病史\n  - **-1**：未提及"
+  糖尿病:
+    category: 既往史
+    category_full: 三、既往史（第二类：存在性判断）
+    variable_type: existence
+    synonyms:
+    - 糖尿病
+    - DM
+    - diabetes
+    - 1型糖尿病
+    - 2型糖尿病
+    - 血糖升高
+    rules: 同高血压
+  高脂血症:
+    category: 既往史
+    category_full: 三、既往史（第二类：存在性判断）
+    variable_type: existence
+    synonyms:
+    - 高脂血症
+    - 高血脂
+    - 血脂异常
+    - hyperlipidemia
+    - 高胆固醇血症
+    - 高甘油三酯血症
+    rules: 同高血压
+  冠心病:
+    category: 既往史
+    category_full: 三、既往史（第二类：存在性判断）
+    variable_type: existence
+    synonyms:
+    - 冠心病
+    - 冠状动脉粥样硬化性心脏病
+    - CHD
+    - coronary heart disease
+    - 心肌梗死
+    - 心绞痛
+    rules: 同高血压
+  肿瘤史:
+    category: 既往史
+    category_full: 三、既往史（第二类：存在性判断）
+    variable_type: existence
+    synonyms:
+    - 肿瘤史
+    - 肿瘤病史
+    - 癌症
+    - 恶性肿瘤
+    - 良性肿瘤
+    - 占位性病变
+    rules: "- **1**：明确有肿瘤病史（良性或恶性）\n  - **0**：明确否认肿瘤病史\n  - **-1**：未提及"
+  血红蛋白含量:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - Hb
+    - HGB
+    - 血红蛋白
+    - 血色素
+    - hemoglobin
+    rules: 如"Hb 110g/L"→填写`110`；有多次检查取**最低值**
+    unit: g/L
+  血小板计数:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - PLT
+    - 血小板
+    - platelet
+    rules: 如"PLT 250×10^9/L"→填写`250`；取**最低值**
+    unit: ×10^9/L
+  白细胞:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - WBC
+    - 白细胞
+    - 白细胞计数
+    - leukocyte
+    rules: 如"WBC 8.5×10^9/L"→填写`8.5`；取**最高值**
+    unit: ×10^9/L
+  淋巴细胞数:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - LYM
+    - LYMPH
+    - 淋巴细胞
+    - 淋巴细胞绝对值
+    rules: 提取绝对值（非百分比）；取**最低值**
+    unit: ×10^9/L
+  中性粒细胞数:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - NEUT
+    - 中性粒细胞
+    - 中性粒细胞绝对值
+    rules: 提取绝对值；取**最大值**
+    unit: ×10^9/L
+  单核细胞数:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - MONO
+    - 单核细胞
+    - 单核细胞绝对值
+    rules: 提取绝对值；取**最大值**
+    unit: ×10^9/L
+  嗜酸细胞数:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - EOS
+    - 嗜酸性粒细胞
+    - 嗜酸细胞绝对值
+    rules: 提取绝对值；取**最大值**
+    unit: ×10^9/L
+  血沉:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - ESR
+    - 血沉
+    - 红细胞沉降率
+    - erythrocyte sedimentation rate
+    rules: 如"ESR 65mm/h"→填写`65`；取**最大值**
+    unit: mm/h
+  总胆红素:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - TBIL
+    - 总胆红素
+    - total bilirubin
+    rules: 取**最大值**
+    unit: μmol/L
+  直接胆红素:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - DBIL
+    - 直接胆红素
+    - direct bilirubin
+    rules: 取**最大值**
+    unit: μmol/L
+  白蛋白:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - ALB
+    - 白蛋白
+    - 血清白蛋白
+    - albumin
+    rules: 如"白蛋白37.83g/L"→填写`37.83`；取**最小值**
+    unit: g/L
+  球蛋白:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - GLB
+    - 球蛋白
+    - 血清球蛋白
+    - globulin
+    rules: 取**最小值**
+    unit: g/L
+  谷丙转氨酶:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - ALT
+    - GPT
+    - 丙氨酸氨基转移酶
+    rules: 取**最高值**
+    unit: U/L
+  谷草转氨酶:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - AST
+    - GOT
+    - 天门冬氨酸氨基转移酶
+    rules: 取**最高值**
+    unit: U/L
+  碱性磷酸酶:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - ALP
+    - 碱性磷酸酶
+    - alkaline phosphatase
+    rules: 取**最高值**
+    unit: U/L
+  γ-谷氨酰转肽酶:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - GGT
+    - γ-GT
+    - r-谷氨酰转肽酶
+    - gamma-glutamyl transferase
+    rules: 取**最高值**
+    unit: U/L
+  尿素氮:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - BUN
+    - 尿素氮
+    - blood urea nitrogen
+    rules: 取**最高值**
+    unit: mmol/L
+  肌酐:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - Cr
+    - 肌酐
+    - 血肌酐
+    - Scr
+    - creatinine
+    rules: 取**最高值**
+    unit: μmol/L
+  尿酸:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - UA
+    - 尿酸
+    - 血尿酸
+    - uric acid
+    rules: 取**最高值**
+    unit: μmol/L
+  总胆固醇:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - TC
+    - CHOL
+    - 总胆固醇
+    - total cholesterol
+    rules: 取**最高值**
+    unit: mmol/L
+  甘油三酯:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - TG
+    - 甘油三酯
+    - 甘油三脂
+    - triglyceride
+    rules: 取**最高值**
+    unit: mmol/L
+  C-反应蛋白:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - CRP
+    - C反应蛋白
+    - 超敏CRP
+    - hs-CRP
+    - C-reactive protein
+    rules: 取**最高值**
+    unit: mg/L
+  免疫球蛋白G:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - IgG
+    - 免疫球蛋白G
+    - immunoglobulin G
+    rules: "- 统一转换为 g/L\n  - 如\"IgG 12.5g/L\"→填写`12.5`\n  - 如\"IgG 12500mg/L\"→转换为12.5→填写`12.5`\n\
+      \  - 取**最高值**"
+    unit: g/L 或 mg/L（注意识别单位）
+  IgG亚类4:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - IgG4
+    - IgG4亚类
+    - IgG亚类4
+    - 免疫球蛋白G亚类4
+    - immunoglobulin G subclass 4
+    rules: 如"IgG4 160mg/L"→填写`160`；取**最高值**
+    unit: mg/L
+    notes: IgG4是IgG4相关疾病的关键诊断指标，务必准确提取
+  补体C3:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - C3
+    - 补体C3
+    - complement C3
+    rules: 取**最低值**
+    unit: g/L
+  补体C4:
+    category: 实验室检查
+    category_full: 四、实验室检查（第四类：数值提取）
+    variable_type: numeric
+    synonyms:
+    - C4
+    - 补体C4
+    - complement C4
+    rules: 取**最低值**
+    unit: g/L
+  超声:
+    category: 影像学检查
+    category_full: 五、影像学检查（第二类+第三类）
+    variable_type: existence
+    synonyms:
+    - 超声
+    - 彩超
+    - B超
+    - ultrasound
+    - 腹部超声
+    - 泌尿系超声
+    - 腮腺超声
+    rules: "- **1**：进行了超声检查（无论部位，无论结果正常或异常）\n  - **0**：明确未做超声检查\n  - **-1**：未提及"
+  超声报告:
+    category: 影像学检查
+    category_full: 五、影像学检查（第二类+第三类）
+    variable_type: report
+    rules: "- 提取所有超声检查的主要发现和结论\n  - 包括检查部位、主要异常描述\n  - 多个部位用分号`;`分隔\n  - 未提及→填**-1**"
+    example: '- "腮腺彩超：双侧腮腺略大；泌尿系彩超：双肾、膀胱未见占位性病变"'
+  CT:
+    category: 影像学检查
+    category_full: 五、影像学检查（第二类+第三类）
+    variable_type: existence
+    synonyms:
+    - CT
+    - CT检查
+    - 计算机断层扫描
+    - 头颅CT
+    - 胸部CT
+    - 腹部CT
+    - 增强CT
+    rules: "- **1**：进行了CT检查（无论部位，无论结果）\n  - **0**：明确未做CT检查\n  - **-1**：未提及"
+  CT报告:
+    category: 影像学检查
+    category_full: 五、影像学检查（第二类+第三类）
+    variable_type: report
+    rules: "- 提取CT检查的主要发现和结论\n  - 包括检查部位、扫描方式（平扫/增强）、主要异常\n  - 多个部位用分号`;`分隔\n  - 未提及→填**-1**"
+    example: '- "腹部增强CT：上、下腹部平扫及增强扫描未见明显异常"'
+  MRI:
+    category: 影像学检查
+    category_full: 五、影像学检查（第二类+第三类）
+    variable_type: existence
+    synonyms:
+    - MRI
+    - 磁共振
+    - 核磁共振
+    - magnetic resonance imaging
+    - MR
+    - 眼眶MRI
+    - 头颅MRI
+    rules: "- **1**：进行了MRI检查（无论部位，无论结果）\n  - **0**：明确未做MRI检查\n  - **-1**：未提及"
+  MRI报告:
+    category: 影像学检查
+    category_full: 五、影像学检查（第二类+第三类）
+    variable_type: report
+    rules: "- 提取MRI检查的主要发现和结论\n  - 特别关注IgG4相关病变的影像学特征（如软组织增厚、强化等）\n  - 包括检查部位、扫描序列、主要异常\n\
+      \  - 多个部位用分号`;`分隔\n  - 未提及→填**-1**"
+    example: '- "眼眶MRI：双侧眼球上、外壁及上直肌走行区软组织增厚并明显强化，不排除IgG4相关性疾病"'
+  病理:
+    category: 病理检查
+    category_full: 六、病理检查（第二类+第三类）
+    variable_type: existence
+    synonyms:
+    - 病理
+    - 病理检查
+    - 组织病理
+    - 活检
+    - 穿刺活检
+    - 病理诊断
+    rules: "- **1**：进行了病理检查\n  - **0**：明确未做病理检查\n  - **-1**：未提及"
+  病理部位:
+    category: 病理检查
+    category_full: 六、病理检查（第二类+第三类）
+    variable_type: report
+    rules: "- 提取病理活检的具体部位，病理部位一般有很多个，一定要全部仔细检查所有的关于病理的描述\n  - 如\"下唇\"、\"腮腺\"、\"肾脏\"\
+      、\"淋巴结\"等\n  - 多个部位用分号`、`分隔\n  - 未提及或未做病理→填**-1**"
+  病理报告:
+    category: 病理检查
+    category_full: 六、病理检查（第二类+第三类）
+    variable_type: report
+    rules: "- 提取病理诊断的主要内容\n  - 特别关注IgG4相关病理特征：\n    - 淋巴细胞/浆细胞浸润\n    - IgG4阳性浆细胞计数\n\
+      \    - 纤维化\n    - 闭塞性静脉炎\n  - 未提及或未做病理→填**-1**"
+    example: '- "（下唇）涎腺小叶结构完整，部分小叶间导管扩张，间质散在少量淋巴细胞浸润"'
+  继续用药:
+    category: 用药指导
+    category_full: 七、用药指导（第三类：报告内容提取）
+    variable_type: report
+    synonyms:
+    - 继续用药
+    - 出院带药
+    - 出院医嘱
+    - 出院后用药
+    - 长期医嘱
+    - 出院指导用药
+    - 出院后治疗方案
+    description: 出院后继续用药的医嘱或用药指导
+    rules: "- **完整提取**病历中关于出院后继续用药的完整段落\n  - 通常位于：\n    - 出院记录的\"出院医嘱\"部分\n    - 出院病史总结的\"\
+      出院指导\"部分\n    - 病程记录中的用药方案\n  - **提取范围**：包括所有药物名称、剂量、频率、用法、疗程\n  - **保持原文格式**：尽可能保留原文的分条、分行结构\n\
+      \  - 未提及→填**-1**"
+    example: "```\n  1. 泼尼松50mg/日口服，每2周减5mg，逐渐减量至维持剂量；\n  2. 羟苯磺酸钙胶囊 0.5g po tid；\n\
+      \  3. 甲钴胺片 0.5mg po tid；\n  4. 酒石酸溴莫尼定滴眼液、布林佐胺噻马洛尔滴眼液、双氯芬酸钠滴眼液滴双眼；\n  5. 碳酸钙D3片\
+      \ 600mg po qd 预防骨质疏松；\n  6. 奥美拉唑肠溶胶囊 20mg po qd 护胃；\n  7. 定期复查血常规、肝肾功能、血糖、血脂、IgG4水平。\n\
+      \  ```"
+    notes: "- 必须**完整截取整段内容**，不要遗漏任何药物\n  - 如果分散在多个段落，需要整合所有用药信息\n  - 包括激素、免疫抑制剂、对症治疗药物、辅助用药\n\
+      \  - 包括复查要求和注意事项"
+  思考过程:
+    category: 数据追溯
+    category_full: 八、数据追溯（第三类：完整记录）
+    variable_type: memo
+    description: 记录每个变量的提取思考过程和原文依据
+    rules: "- **必须记录所有变量**的提取过程（不仅仅是关键变量）\n  - 对于每个变量，记录：\n    1. 原文内容及出处（页码/段落/章节）\n\
+      \    2. 判断依据和逻辑\n    3. 如何应用提取规则\n    4. 遇到的困难或不确定因素\n  - **完整性要求**：\n    -\
+      \ 基本信息（6项）：全部记录\n    - 主诉（1项）：记录\n    - 既往史（8项）：全部记录判断依据\n    - 实验室检查（26项）：记录所有找到的数值及取值过程\n\
+      \    - 影像学检查（6项）：记录所有检查及报告提取过程\n    - 病理检查（3项）：记录检查情况及报告提取\n    - 继续用药（1项）：记录提取的原文出处"
+    format: "```\n  【变量名】:\n  - 原文: \"XXX\"（第X页/XX段落/XX章节）\n  - 判断: X\n  - 依据: XXX\n\
+      \  - 规则应用: XXX\n  ```"
+    required: "1. **基本信息提取记录**（姓名、性别、年龄、住院号、手机号、就诊时间）\n  2. **主诉提取记录**（原文位置、提取内容）\n\
+      \  3. **既往史判断记录**（过敏史、吸烟史、饮酒史、高血压、糖尿病、高脂血症、冠心病、肿瘤史）\n  4. **实验室检查提取记录**：\n \
+      \    - 所有数值型变量的原文、数值、取值规则应用\n     - 特别说明如何取最大值/最小值/最低值\n     - 如\"血沉：入院65mm/h，第3天78mm/h，第5天85mm/h\
+      \ → 取最大值85\"\n  5. **影像学检查记录**（超声、CT、MRI的检查情况及报告提取）\n  6. **病理检查记录**（是否做病理、部位、报告内容）\n\
+      \  7. **继续用药提取记录**（原文出处、提取内容）\n  8. **特殊情况说明**：\n     - 数据缺失情况（填-1的原因）\n   \
+      \  - 多次检查的取值选择\n     - 不确定或模糊的信息"
+patterns:
+- contains: 报告
+  variable_type: report
+  rules: 提取报告的部位、方式、主要结论，多检查用分号分隔。
+- suffix: 史
+  variable_type: existence
+  rules: 1=有该病史；0=明确否认；-1=未提及。
+- contains: 数
+  variable_type: numeric
+  rules: 提取数值并去单位，遵循最大/最小值规则，未提及填-1。

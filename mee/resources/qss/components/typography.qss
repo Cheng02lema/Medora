@@ -1,0 +1,4 @@
+/* 排版体系 */
+QWidget {
+    font-family: "DejaVu Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
