@@ -71,6 +71,11 @@ export interface ProjectConfig {
     output_excel: string;
     make_docx: boolean;
   };
+  execution_use_global: boolean;
+  max_parallel_patients: number | null;
+  global_max_parallel_patients: number;
+  effective_max_parallel_patients: number;
+  max_parallel_cap: number;
 }
 
 export interface ProjectDetail extends ProjectSummary {
@@ -160,6 +165,10 @@ export interface SettingsPayload {
     extraction_template: string;
     output_excel: string;
     make_docx: boolean;
+  };
+  execution?: {
+    max_parallel_patients: number;
+    max_cap: number;
   };
 }
 
@@ -254,6 +263,11 @@ export const api = {
     request(`/projects/${id}/config/preprocess`, { method: "PUT", body: JSON.stringify(body) }),
   updateProjectPipeline: (id: string, body: any) =>
     request(`/projects/${id}/config/pipeline`, { method: "PUT", body: JSON.stringify(body) }),
+  updateProjectExecution: (id: string, body: { use_global?: boolean; max_parallel_patients?: number }) =>
+    request<{ ok: boolean; execution_use_global?: boolean; max_parallel_patients?: number | null }>(
+      `/projects/${id}/config/execution`,
+      { method: "PUT", body: JSON.stringify(body) },
+    ),
   updateProjectSliceRegions: (id: string, regions: any[]) =>
     request(`/projects/${id}/config/slice-regions`, { method: "PUT", body: JSON.stringify({ regions }) }),
   listProjectPatients: (id: string) => request<PatientSummary[]>(`/projects/${id}/patients`),
@@ -281,12 +295,12 @@ export const api = {
       rerun?: boolean;
     },
   ) =>
-    request<{ task_id: string; patient_count: number; stages: string[] }>(
+    request<{ task_id: string; patient_count: number; stages: string[]; parallel: number }>(
       `/projects/${projectId}/pipeline/run`,
       { method: "POST", body: JSON.stringify(body) },
     ),
   stopProjectPipeline: (projectId: string, taskId: string = "") =>
-    request<{ ok: boolean }>(
+    request<{ ok: boolean; message?: string }>(
       `/projects/${projectId}/pipeline/stop?task_id=${encodeURIComponent(taskId)}`,
       { method: "POST" },
     ),
@@ -359,12 +373,12 @@ export const api = {
       body: JSON.stringify({ rerun }),
     }),
   runBatch: (patientIds: string[], stage: string, rerun = false) =>
-    request<{ task_id: string; patient_count: number }>(`/stages/batch/${stage}/run`, {
+    request<{ task_id: string; patient_count: number; parallel: number }>(`/stages/batch/${stage}/run`, {
       method: "POST",
       body: JSON.stringify({ patient_ids: patientIds, rerun }),
     }),
   stopTask: (taskId: string) =>
-    request<{ ok: boolean }>(`/stages/tasks/${taskId}/stop`, { method: "POST" }),
+    request<{ ok: boolean; message?: string }>(`/stages/tasks/${taskId}/stop`, { method: "POST" }),
   listActiveTasks: () =>
     request<{ tasks: { task_id: string; patient_id: string; stopped: boolean }[] }>(`/stages/tasks/active`),
 
@@ -640,6 +654,11 @@ export const api = {
     }),
   updatePipeline: (body: { extraction_template?: string; output_excel?: string; make_docx?: boolean }) =>
     request("/settings/pipeline", { method: "PUT", body: JSON.stringify(body) }),
+  updateExecution: (body: { max_parallel_patients: number }) =>
+    request<{ ok: boolean; max_parallel_patients: number }>("/settings/execution", {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
 
   // 病例归档 Agent
   createOrganizeSession: (body: { work_path: string; out_path?: string; project_id?: string }) =>

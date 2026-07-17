@@ -13,7 +13,9 @@ from __future__ import annotations
 
 import json
 import logging
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
@@ -49,10 +51,25 @@ class StageRunner:
         self.on_log = on_log or (lambda *a: None)
         self.on_stage_done = on_stage_done or (lambda *a: None)
         self.on_ocr_page = on_ocr_page or (lambda *a: None)
-        self.is_stopped = False
+        self._stop_event = threading.Event()
+
+    @property
+    def is_stopped(self) -> bool:
+        return self._stop_event.is_set()
+
+    @is_stopped.setter
+    def is_stopped(self, value: bool) -> None:
+        if value:
+            self._stop_event.set()
+        else:
+            self._stop_event.clear()
 
     def stop(self):
-        self.is_stopped = True
+        self._stop_event.set()
+
+    def _parallel_patients(self) -> int:
+        from .config_resolve import clamp_parallel_patients
+        return clamp_parallel_patients(self.settings.get("max_parallel_patients", 1), 1)
 
     # ---- 单病人单阶段 ----
     def run_single(self, patient: Patient, stage: str, rerun: bool = False):
@@ -94,11 +111,31 @@ class StageRunner:
 
     # ---- 批量 ----
     def run_batch(self, patients: List[Patient], stage: str, rerun: bool = False):
-        """批量执行同一阶段，串行，continue-on-error。"""
-        for p in patients:
-            if self.is_stopped:
-                break
-            self.run_single(p, stage, rerun=rerun)
+        """批量执行同一阶段；N>1 时病人级并行，continue-on-error。"""
+        if not patients:
+            return
+        n = min(self._parallel_patients(), len(patients))
+        if n <= 1:
+            for p in patients:
+                if self.is_stopped:
+                    break
+                self.run_single(p, stage, rerun=rerun)
+            return
+
+        self.on_log("", stage, "info", f"批量加速：同时处理 {n} 人 · 共 {len(patients)} 人")
+        with ThreadPoolExecutor(max_workers=n) as pool:
+            futures = {}
+            for p in patients:
+                if self.is_stopped:
+                    break
+                fut = pool.submit(self.run_single, p, stage, rerun)
+                futures[fut] = p
+            for fut in as_completed(futures):
+                try:
+                    fut.result()
+                except Exception as exc:
+                    p = futures[fut]
+                    logger.warning("批量任务异常 %s: %s", p.name, exc)
 
     # ---- 导出（汇总） ----
     def run_export(self, patients: List[Patient], output_path: str) -> str:

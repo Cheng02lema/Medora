@@ -40,6 +40,10 @@ DEFAULT_VALUES = {
     "pipeline": {
         "extraction_template": "",
     },
+    "execution": {
+        # 批量/流水线同时处理的病人数；1=串行（默认）
+        "max_parallel_patients": 1,
+    },
     "ocr_api": {
         "url": DEFAULT_OCR_JOB_URL,
         "token_ref": "",

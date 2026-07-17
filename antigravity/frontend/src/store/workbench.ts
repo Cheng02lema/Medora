@@ -350,8 +350,12 @@ export const useWorkbench = create<WorkbenchState>((set, get) => ({
 
   runBatch: async (patientIds: string[], stage: string, rerun = false) => {
     try {
-      await api.runBatch(patientIds, stage, rerun);
-      get().addToast("info", `开始批量${rerun ? "重新" : ""}执行 ${stage}（${patientIds.length} 人）`);
+      const result = await api.runBatch(patientIds, stage, rerun);
+      const n = result.parallel || 1;
+      get().addToast(
+        "info",
+        `已开始 · 同时处理 ${n} 人 · 共 ${result.patient_count || patientIds.length} 人`,
+      );
     } catch (e: any) {
       get().addToast("error", e.message || "批量执行失败");
     }
@@ -359,8 +363,11 @@ export const useWorkbench = create<WorkbenchState>((set, get) => ({
 
   stopTask: async (taskId: string) => {
     try {
-      await api.stopTask(taskId);
-      get().addToast("warning", "已请求停止任务");
+      const r = await api.stopTask(taskId);
+      get().addToast(
+        "warning",
+        r.message || "正在停止：已在处理的病人会做完当前阶段",
+      );
     } catch (e: any) {
       get().addToast("error", e.message || "停止失败");
     }

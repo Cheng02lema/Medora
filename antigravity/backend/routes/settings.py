@@ -85,6 +85,12 @@ def get_settings():
             "output_excel": "",
             "make_docx": False,
         },
+        "execution": {
+            "max_parallel_patients": (
+                config.data.get("execution", {}) or {}
+            ).get("max_parallel_patients", 1),
+            "max_cap": 4,
+        },
     }
 
 
@@ -452,6 +458,22 @@ def update_pipeline(body: PipelineSettings):
     if updates:
         config.update_section("pipeline", updates)
     return {"ok": True}
+
+
+# ============ 批量加速 ============
+
+class ExecutionSettings(BaseModel):
+    max_parallel_patients: Optional[int] = None
+
+
+@router.put("/execution")
+def update_execution(body: ExecutionSettings):
+    from ..config_resolve import clamp_parallel_patients
+    if body.max_parallel_patients is None:
+        return {"ok": True}
+    n = clamp_parallel_patients(body.max_parallel_patients, 1)
+    config.update_section("execution", {"max_parallel_patients": n})
+    return {"ok": True, "max_parallel_patients": n}
 
 
 # ============ 文件浏览（Electron 环境下用原生对话框，Web 环境用手动输入） ============

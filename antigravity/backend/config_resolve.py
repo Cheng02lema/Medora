@@ -5,6 +5,7 @@
 - 用户 OCR 预设库仅全局
 - 抽取模板 / 导出路径 / 提示词 仅项目
 - OCR / LLM 运行参数：项目 use_global=True 时全用全局；False 时用项目覆盖（空字段仍可回落全局）
+- 批量并发：全局默认；项目可覆盖 max_parallel_patients
 """
 
 from __future__ import annotations
@@ -13,6 +14,37 @@ from typing import Any, Dict, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .project import Project
+
+# 对外「同时处理」硬上限，防打爆 OCR/LLM
+MAX_PARALLEL_PATIENTS_CAP = 4
+
+
+def clamp_parallel_patients(value: Any, default: int = 1) -> int:
+    try:
+        n = int(value)
+    except (TypeError, ValueError):
+        n = default
+    if n < 1:
+        n = 1
+    if n > MAX_PARALLEL_PATIENTS_CAP:
+        n = MAX_PARALLEL_PATIENTS_CAP
+    return n
+
+
+def global_max_parallel_patients(config) -> int:
+    exe = config.data.get("execution", {}) or {}
+    return clamp_parallel_patients(exe.get("max_parallel_patients", 1), 1)
+
+
+def effective_max_parallel_patients(project: Optional["Project"], config) -> int:
+    """项目覆盖 > 全局默认；始终 clamp 到 1..CAP。"""
+    g = global_max_parallel_patients(config)
+    if project is None or getattr(project, "execution_use_global", True):
+        return g
+    raw = getattr(project, "max_parallel_patients", None)
+    if raw is None:
+        return g
+    return clamp_parallel_patients(raw, g)
 
 
 def global_ocr_dict(config) -> Dict[str, Any]:
@@ -140,4 +172,5 @@ def runner_settings_for_patient(patient, project: Optional["Project"], config) -
         "slice_regions": slice_regions,
         "cleanup_pattern": "*右表格_0.md",
         "prompt_md_path": prompt_md,
+        "max_parallel_patients": effective_max_parallel_patients(project, config),
     }

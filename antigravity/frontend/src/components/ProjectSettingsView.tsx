@@ -25,6 +25,9 @@ export default function ProjectSettingsView({ onClose }: { onClose?: () => void 
 
   const [ocrUseGlobal, setOcrUseGlobal] = useState(true);
   const [llmUseGlobal, setLlmUseGlobal] = useState(true);
+  const [execUseGlobal, setExecUseGlobal] = useState(true);
+  const [projectParallel, setProjectParallel] = useState(1);
+  const [globalParallel, setGlobalParallel] = useState(1);
 
   const [ocr, setOcr] = useState<OcrPanelValue>({
     url: "",
@@ -60,6 +63,15 @@ export default function ProjectSettingsView({ onClose }: { onClose?: () => void 
         const llmGlobal = cfg.llm_use_global !== false;
         setOcrUseGlobal(ocrGlobal);
         setLlmUseGlobal(llmGlobal);
+        const execGlobal = cfg.execution_use_global !== false;
+        setExecUseGlobal(execGlobal);
+        setGlobalParallel(cfg.global_max_parallel_patients ?? 1);
+        setProjectParallel(
+          cfg.max_parallel_patients ??
+            cfg.effective_max_parallel_patients ??
+            cfg.global_max_parallel_patients ??
+            1,
+        );
 
         // 面板展示 effective；覆盖模式下编辑的是项目值
         const srcOcr = ocrGlobal ? cfg.global_ocr : cfg.ocr;
@@ -163,6 +175,15 @@ export default function ProjectSettingsView({ onClose }: { onClose?: () => void 
         });
       }
 
+      if (execUseGlobal) {
+        await api.updateProjectExecution(currentProjectId, { use_global: true });
+      } else {
+        await api.updateProjectExecution(currentProjectId, {
+          use_global: false,
+          max_parallel_patients: projectParallel,
+        });
+      }
+
       await loadProjects();
       addToast("success", "项目配置已保存");
       onClose?.();
@@ -217,6 +238,46 @@ export default function ProjectSettingsView({ onClose }: { onClose?: () => void 
             filters={[{ name: "Excel", extensions: ["xlsx"] }]}
           />
         </Field>
+      </Section>
+
+      <Section title="批量加速">
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, cursor: "pointer" }}>
+            <input
+              type="radio"
+              checked={execUseGlobal}
+              onChange={() => setExecUseGlobal(true)}
+              style={{ width: "auto" }}
+            />
+            与全局一致（当前全局：{globalParallel} 人）
+          </label>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, cursor: "pointer" }}>
+            <input
+              type="radio"
+              checked={!execUseGlobal}
+              onChange={() => setExecUseGlobal(false)}
+              style={{ width: "auto" }}
+            />
+            本项目单独设置
+            {!execUseGlobal && (
+              <select
+                value={projectParallel}
+                onChange={(e) => setProjectParallel(Number(e.target.value))}
+                style={{ marginLeft: 4, width: 72 }}
+              >
+                {[1, 2, 3, 4].map((n) => (
+                  <option key={n} value={n}>{n} 人</option>
+                ))}
+              </select>
+            )}
+          </label>
+        </div>
+        <div className="faint" style={{ marginTop: 8, fontSize: 12 }}>
+          实际生效：{execUseGlobal ? globalParallel : projectParallel} 人 · 仅批量/流水线
+        </div>
+      </Section>
+
+      <Section title="导出选项">
         <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, cursor: "pointer" }}>
           <input type="checkbox" checked={makeDocx} onChange={(e) => setMakeDocx(e.target.checked)} style={{ width: "auto" }} />
           合并时生成 .docx

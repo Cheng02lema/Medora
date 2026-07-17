@@ -23,8 +23,16 @@ export default function ProjectBatchPanel({ onClose }: { onClose?: () => void })
   const [rerun, setRerun] = useState(false);
   const [running, setRunning] = useState(false);
   const [taskId, setTaskId] = useState("");
+  const [parallelHint, setParallelHint] = useState(1);
 
   const project = projects.find((p) => p.id === currentProjectId);
+
+  useEffect(() => {
+    if (!currentProjectId) return;
+    api.getProjectConfig(currentProjectId).then((cfg) => {
+      setParallelHint(cfg.effective_max_parallel_patients ?? cfg.global_max_parallel_patients ?? 1);
+    }).catch(() => {});
+  }, [currentProjectId]);
 
   useEffect(() => {
     api.listPipelineStages().then((r) => {
@@ -84,9 +92,11 @@ export default function ProjectBatchPanel({ onClose }: { onClose?: () => void })
         rerun,
       });
       setTaskId(result.task_id);
+      const n = result.parallel || parallelHint || 1;
+      setParallelHint(n);
       addToast(
         "info",
-        `已启动：${result.patient_count} 人 · ${result.stages.map((s) => STAGE_LABELS[s as StageKey] || s).join("→")}`,
+        `已开始 · 同时处理 ${n} 人 · 共 ${result.patient_count} 人 · ${result.stages.map((s) => STAGE_LABELS[s as StageKey] || s).join("→")}`,
       );
     } catch (e: any) {
       addToast("error", e.message || "启动失败");
@@ -97,8 +107,11 @@ export default function ProjectBatchPanel({ onClose }: { onClose?: () => void })
   const handleStop = async () => {
     if (!currentProjectId) return;
     try {
-      await api.stopProjectPipeline(currentProjectId, taskId);
-      addToast("warning", "已请求停止流水线");
+      const r = await api.stopProjectPipeline(currentProjectId, taskId);
+      addToast(
+        "warning",
+        r.message || "正在停止：已在处理的病人会做完当前阶段",
+      );
       setRunning(false);
     } catch (e: any) {
       addToast("error", e.message || "停止失败");
@@ -129,6 +142,7 @@ export default function ProjectBatchPanel({ onClose }: { onClose?: () => void })
         <div className="h1">批量启动</div>
         <span className="sub">
           {project.name} · 共 {patients.length} 人 · 本次 {targetPatients.length} 人
+          · 同时处理 {parallelHint} 人
         </span>
         {onClose && (
           <button className="btn btn-sm" style={{ marginLeft: "auto" }} onClick={onClose}>

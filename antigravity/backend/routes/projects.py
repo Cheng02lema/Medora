@@ -77,8 +77,14 @@ def get_config(project_id: str):
     from ..state import config as global_config
     from ..config_resolve import effective_ocr, effective_llm, global_ocr_dict, global_llm_dict
 
+    from ..config_resolve import (
+        effective_max_parallel_patients,
+        global_max_parallel_patients,
+    )
+
     eff_ocr = effective_ocr(p, global_config)
     eff_llm = effective_llm(p, global_config)
+    global_parallel = global_max_parallel_patients(global_config)
     return {
         "ocr_use_global": bool(getattr(p, "ocr_use_global", True)),
         "llm_use_global": bool(getattr(p, "llm_use_global", True)),
@@ -101,6 +107,11 @@ def get_config(project_id: str):
             "output_excel": p.output_excel,
             "make_docx": p.make_docx,
         },
+        "execution_use_global": bool(getattr(p, "execution_use_global", True)),
+        "max_parallel_patients": getattr(p, "max_parallel_patients", None),
+        "global_max_parallel_patients": global_parallel,
+        "effective_max_parallel_patients": effective_max_parallel_patients(p, global_config),
+        "max_parallel_cap": 4,
     }
 
 
@@ -234,6 +245,40 @@ def update_pipeline_config(project_id: str, req: UpdatePipelineConfigRequest):
         p.make_docx = req.make_docx
     p.save()
     return {"ok": True}
+
+
+class UpdateExecutionConfigRequest(BaseModel):
+    """use_global=True 时跟随全局；False 时用 max_parallel_patients（1–4）。"""
+    use_global: Optional[bool] = None
+    max_parallel_patients: Optional[int] = None
+
+
+@router.put("/{project_id}/config/execution")
+def update_execution_config(project_id: str, req: UpdateExecutionConfigRequest):
+    from ..config_resolve import clamp_parallel_patients
+
+    p = project_store.get(project_id)
+    if not p:
+        raise HTTPException(404, "项目不存在")
+
+    if req.use_global is True:
+        p.execution_use_global = True
+        p.max_parallel_patients = None
+        p.save()
+        return {"ok": True, "execution_use_global": True}
+
+    if req.use_global is False or req.max_parallel_patients is not None:
+        p.execution_use_global = False
+        if req.max_parallel_patients is not None:
+            p.max_parallel_patients = clamp_parallel_patients(req.max_parallel_patients, 1)
+        elif p.max_parallel_patients is None:
+            p.max_parallel_patients = 1
+        p.save()
+    return {
+        "ok": True,
+        "execution_use_global": p.execution_use_global,
+        "max_parallel_patients": p.max_parallel_patients,
+    }
 
 
 class UpdateSliceRegionsRequest(BaseModel):

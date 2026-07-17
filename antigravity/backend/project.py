@@ -51,6 +51,10 @@ class Project:
     slice_regions: List[Dict] = field(default_factory=list)
     make_docx: bool = False
 
+    # 批量加速：默认跟全局；覆盖时 max_parallel_patients 为 1–4
+    execution_use_global: bool = True
+    max_parallel_patients: Optional[int] = None
+
     # 模板
     extraction_template: str = ""  # Excel/JSON 路径
     output_excel: str = ""
@@ -118,6 +122,8 @@ class Project:
             "preprocess_config": self.preprocess_config,
             "slice_regions": self.slice_regions,
             "make_docx": self.make_docx,
+            "execution_use_global": self.execution_use_global,
+            "max_parallel_patients": self.max_parallel_patients,
             "extraction_template": self.extraction_template,
             "output_excel": self.output_excel,
             "prompt_global": self.prompt_global,
@@ -160,6 +166,12 @@ class Project:
             preprocess_config=data.get("preprocess_config", dict(DEFAULT_PREPROCESS_CONFIG)),
             slice_regions=data.get("slice_regions", []),
             make_docx=data.get("make_docx", False),
+            execution_use_global=bool(data.get("execution_use_global", True)),
+            max_parallel_patients=(
+                int(data["max_parallel_patients"])
+                if data.get("max_parallel_patients") is not None
+                else None
+            ),
             extraction_template=data.get("extraction_template", ""),
             output_excel=data.get("output_excel", ""),
             prompt_global=data.get("prompt_global", ""),

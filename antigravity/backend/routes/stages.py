@@ -174,18 +174,25 @@ def run_batch(stage: str, req: BatchRunRequest):
             for p in patients:
                 manager.emit_patient_update(p.to_summary())
 
+    parallel = int(settings.get("max_parallel_patients", 1) or 1)
+    parallel = max(1, min(parallel, len(patients)))
+
     _executor.submit(_run)
-    return {"task_id": task_id, "patient_count": len(patients)}
+    return {
+        "task_id": task_id,
+        "patient_count": len(patients),
+        "parallel": parallel,
+    }
 
 
 @router.post("/tasks/{task_id}/stop")
 def stop_task(task_id: str):
-    """停止正在运行的任务。"""
+    """停止任务：不再开新病人；已在处理的会做完当前阶段。"""
     runner = _runners.get(task_id)
     if not runner:
         raise HTTPException(404, "任务不存在或已完成")
     runner.stop()
-    return {"ok": True}
+    return {"ok": True, "message": "正在停止：已在处理的病人会做完当前阶段"}
 
 
 @router.get("/tasks/active")

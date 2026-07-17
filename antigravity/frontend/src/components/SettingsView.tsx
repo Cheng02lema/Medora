@@ -42,6 +42,7 @@ export default function SettingsView() {
   const [testingAgent, setTestingAgent] = useState(false);
   const [agentTestResult, setAgentTestResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [savedSection, setSavedSection] = useState("");
+  const [parallelPatients, setParallelPatients] = useState(1);
 
   useEffect(() => {
     api.getLlmProviders().then(setLlmProviders).catch(() => {});
@@ -74,6 +75,8 @@ export default function SettingsView() {
       setAgentTemperature(ag.temperature ?? 0.2);
       setAgentMaxTokens(ag.max_tokens ?? 2000);
     }
+    const n = settings.execution?.max_parallel_patients ?? 1;
+    setParallelPatients(Math.max(1, Math.min(4, Number(n) || 1)));
   }, [settings]);
 
   const showSaved = (section: string) => {
@@ -242,6 +245,7 @@ export default function SettingsView() {
       >
         · Token / API Key 只在这里配置<br />
         · OCR 用户预设库全局共享<br />
+        · 批量可同时处理多名病人（见「批量加速」）<br />
         · 抽取模板、导出路径请到「项目设置」
       </div>
 
@@ -329,6 +333,67 @@ export default function SettingsView() {
           </button>
         </div>
         {agentTestResult && <TestResult result={agentTestResult} />}
+      </ConfigSection>
+
+      <ConfigSection title="批量加速" saved={savedSection === "execution"}>
+        <div className="faint" style={{ fontSize: 12, marginBottom: 12, lineHeight: 1.6 }}>
+          同时处理几个病人（仅影响批量与流水线；单人执行始终是 1）。
+          <br />
+          数字越大通常越快，也更容易触发 OCR/LLM 限流。建议先从 2 试起。
+        </div>
+        <Field label={`同时处理：${parallelPatients} 人`}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+            {[1, 2, 3, 4].map((n) => (
+              <button
+                key={n}
+                type="button"
+                className={`btn btn-sm ${parallelPatients === n ? "btn-primary" : ""}`}
+                onClick={() => setParallelPatients(n)}
+              >
+                {n}
+                {n === 1 ? " 稳妥" : n <= 3 ? "" : " 慎用"}
+              </button>
+            ))}
+          </div>
+          <input
+            type="range"
+            min={1}
+            max={4}
+            step={1}
+            value={parallelPatients}
+            onChange={(e) => setParallelPatients(Number(e.target.value))}
+            style={{ width: "100%" }}
+          />
+          <div className="faint" style={{ marginTop: 6, fontSize: 11 }}>
+            1 稳妥（默认） · 2–3 常用 · 4 赶工慎用
+          </div>
+        </Field>
+        {parallelPatients >= 4 && (
+          <div style={{
+            marginBottom: 12, padding: "8px 10px", borderRadius: 8, fontSize: 12,
+            background: "var(--warning-fade, rgba(234,179,8,.12))",
+            border: "1px solid var(--warning, #eab308)",
+            color: "var(--text-2)",
+          }}>
+            同时过多可能触发接口限流或费用上升，建议从 2–3 试起。
+          </div>
+        )}
+        <button
+          className="btn btn-primary"
+          onClick={async () => {
+            try {
+              const r = await api.updateExecution({ max_parallel_patients: parallelPatients });
+              setParallelPatients(r.max_parallel_patients ?? parallelPatients);
+              await loadSettings();
+              showSaved("execution");
+              addToast("success", `批量加速已保存：同时处理 ${r.max_parallel_patients ?? parallelPatients} 人`);
+            } catch (e: any) {
+              addToast("error", e.message || "保存失败");
+            }
+          }}
+        >
+          保存批量加速
+        </button>
       </ConfigSection>
 
       <div style={{ height: 40 }} />
