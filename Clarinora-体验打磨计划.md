@@ -1,4 +1,4 @@
-# MedFlow 全量体验打磨计划
+# Clarinora 全量体验打磨计划
 
 > 目标：把「能用」打磨成「好用」——正确性、可逆性、可追溯、零等待无指示。
 > 约束：应用内遮罩（不做外置 PyQt）；极简深色风格；桌面 Electron。
@@ -19,7 +19,7 @@
 
 ### A1. 编辑保存闭环
 - 接入 `useDraft` 到 OCR / Merge / Extract 编辑态
-- 监听 `medflow:save`（Ctrl/Cmd+S）真正保存当前编辑
+- 监听 `clarinora:save`（Ctrl/Cmd+S）真正保存当前编辑
 - contentEditable 离焦/切页/切阶段前：有 dirty 则提示保存或自动草稿
 - 离开页面前 `beforeunload` 与 draft key 对齐
 
@@ -119,7 +119,7 @@
 ### B5. 合并阅读器
 - 搜索 next/prev 匹配（currentMatch 真正工作）
 - dirty 指示 + Ctrl+S
-- 监听 medflow:next/prev 或去掉 KeyboardHelp 虚假声明
+- 监听 clarinora:next/prev 或去掉 KeyboardHelp 虚假声明
 
 ### B6. 抽取/审核闭环
 - 字段分组：优先读模板/提示词字段顺序，硬编码疾病分组作 fallback

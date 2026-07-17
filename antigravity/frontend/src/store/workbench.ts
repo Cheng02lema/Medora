@@ -114,7 +114,7 @@ export const useWorkbench = create<WorkbenchState>((set, get) => ({
     try {
       const list = await api.listProjects();
       set({ projects: list });
-      const savedProjectId = localStorage.getItem("medora:currentProject");
+      const savedProjectId = localStorage.getItem("clarinora:currentProject");
       const targetId = savedProjectId && list.find((p) => p.id === savedProjectId)
         ? savedProjectId
         : list.length > 0 ? list[0].id : null;
@@ -139,7 +139,7 @@ export const useWorkbench = create<WorkbenchState>((set, get) => ({
 
   selectProject: async (id: string) => {
     set({ currentProjectId: id, patients: [], selectedIds: [], currentPatientId: null, patientDetail: null });
-    localStorage.setItem("medora:currentProject", id);
+    localStorage.setItem("clarinora:currentProject", id);
     try {
       const patients = await api.listProjectPatients(id);
       set({ patients });
@@ -159,8 +159,8 @@ export const useWorkbench = create<WorkbenchState>((set, get) => ({
         currentPatientId: s.currentProjectId === id ? null : s.currentPatientId,
         patientDetail: s.currentProjectId === id ? null : s.patientDetail,
       }));
-      if (localStorage.getItem("medora:currentProject") === id) {
-        localStorage.removeItem("medora:currentProject");
+      if (localStorage.getItem("clarinora:currentProject") === id) {
+        localStorage.removeItem("clarinora:currentProject");
       }
       get().addToast("success", "项目已删除");
     } catch (e: any) {
@@ -285,7 +285,7 @@ export const useWorkbench = create<WorkbenchState>((set, get) => ({
     // 记住上次查看的 stage
     const pid = get().currentPatientId;
     if (pid) {
-      localStorage.setItem(`medora:stage:${pid}`, stage);
+      localStorage.setItem(`clarinora:stage:${pid}`, stage);
     }
     if (pid && get().selectedIds.length === 1) {
       get().loadStageData(pid, stage);
@@ -297,7 +297,7 @@ export const useWorkbench = create<WorkbenchState>((set, get) => ({
       const detail = await api.getPatient(patientId);
       set({ patientDetail: detail });
       // 恢复上次查看的 stage（不自动跳到活跃阶段，避免刷新回到源图）
-      const savedStage = localStorage.getItem(`medora:stage:${patientId}`);
+      const savedStage = localStorage.getItem(`clarinora:stage:${patientId}`);
       if (savedStage && STAGE_ORDER.includes(savedStage as StageKey)) {
         set({ currentStage: savedStage as StageKey });
       } else if (!get().currentPatientId) {

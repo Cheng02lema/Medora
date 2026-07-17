@@ -40,7 +40,7 @@ export function useWebSocket({ onMessage }: UseWebSocketOptions) {
         setIsDisconnected(false);
         // 重连后触发数据刷新
         if (wasConnectedOnce.current) {
-          document.dispatchEvent(new CustomEvent("medora:reconnected"));
+          document.dispatchEvent(new CustomEvent("clarinora:reconnected"));
         }
         wasConnectedOnce.current = true;
       };

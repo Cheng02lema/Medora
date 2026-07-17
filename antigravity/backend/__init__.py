@@ -1,4 +1,4 @@
-"""Medora 后端 —— FastAPI 服务 + 内置 engine 纯逻辑。"""
+"""Clarinora 后端 —— FastAPI 服务 + 内置 engine 纯逻辑。"""
 
 from pathlib import Path
 import sys

@@ -1,15 +1,15 @@
 /**
  * 文件/文件夹选择 Hook。
  *
- * - Electron 环境:使用原生对话框(window.medora.selectFolder/selectFile)
+ * - Electron 环境:使用原生对话框(window.clarinora.selectFolder/selectFile)
  * - Web 环境:回退到手动输入(返回 null,调用方应显示输入框)
  */
 
 export async function selectFolder(): Promise<string | null> {
   // Electron 环境
-  if (typeof window !== "undefined" && (window as any).medora?.selectFolder) {
+  if (typeof window !== "undefined" && (window as any).clarinora?.selectFolder) {
     try {
-      const path = await (window as any).medora.selectFolder();
+      const path = await (window as any).clarinora.selectFolder();
       return path || null;
     } catch {
       return null;
@@ -39,9 +39,9 @@ export async function selectFolder(): Promise<string | null> {
 
 export async function selectFile(filters?: { name: string; extensions: string[] }[]): Promise<string | null> {
   // Electron 环境
-  if (typeof window !== "undefined" && (window as any).medora?.selectFile) {
+  if (typeof window !== "undefined" && (window as any).clarinora?.selectFile) {
     try {
-      const path = await (window as any).medora.selectFile(filters);
+      const path = await (window as any).clarinora.selectFile(filters);
       return path || null;
     } catch {
       return null;
@@ -70,9 +70,9 @@ export async function selectFile(filters?: { name: string; extensions: string[] 
 
 export async function selectSaveFile(filters?: { name: string; extensions: string[] }[]): Promise<string | null> {
   // Electron 环境
-  if (typeof window !== "undefined" && (window as any).medora?.selectSaveFile) {
+  if (typeof window !== "undefined" && (window as any).clarinora?.selectSaveFile) {
     try {
-      const path = await (window as any).medora.selectSaveFile(filters);
+      const path = await (window as any).clarinora.selectSaveFile(filters);
       return path || null;
     } catch {
       return null;

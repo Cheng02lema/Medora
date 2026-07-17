@@ -1,7 +1,7 @@
 """集中管理敏感信息（OCR token / LLM API key）。
 
 优先使用系统 keyring（macOS 钥匙串 / Windows 凭据管理器 / Linux Secret
-Service）保存密钥，配置文件中只保留形如 ``keyring:medora/<name>`` 的引用。
+Service）保存密钥，配置文件中只保留形如 ``keyring:clarinora/<name>`` 的引用。
 当 keyring 不可用（没有后端、无桌面会话等）时回落到明文，并置位
 ``LAST_BACKEND_AVAILABLE`` 供 UI 给出警告。
 """
@@ -13,7 +13,7 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-SERVICE_NAME = "medora"
+SERVICE_NAME = "clarinora"
 REF_PREFIX = "keyring:"
 
 # 记录最近一次访问 keyring 是否成功，UI 可据此提示用户密钥未被安全存储。
@@ -58,7 +58,7 @@ def is_ref(value: Optional[str]) -> bool:
 
 
 def _parse_ref(ref: str) -> str:
-    """从 ``keyring:medora/<name>`` 取出 <name>。"""
+    """从 ``keyring:clarinora/<name>`` 取出 <name>。"""
     body = ref[len(REF_PREFIX):]
     if "/" in body:
         _, name = body.split("/", 1)

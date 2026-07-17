@@ -9,7 +9,7 @@ from . import secrets
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_CONFIG_DIR = Path.home() / ".config" / "medora"
+DEFAULT_CONFIG_DIR = Path.home() / ".config" / "clarinora"
 DEFAULT_CONFIG_FILE = DEFAULT_CONFIG_DIR / "settings.json"
 DEFAULT_OCR_JOB_URL = "https://paddleocr.aistudio-app.com/api/v2/ocr/jobs"
 DEFAULT_OCR_MODEL = "PaddleOCR-VL-1.5"

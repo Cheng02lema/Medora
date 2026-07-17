@@ -46,7 +46,7 @@ export function useKeyboardShortcuts() {
       if (ctrl && e.key === "s") {
         e.preventDefault();
         // 触发当前编辑器的保存（通过自定义事件）
-        document.dispatchEvent(new CustomEvent("medora:save"));
+        document.dispatchEvent(new CustomEvent("clarinora:save"));
         return;
       }
 
@@ -72,7 +72,7 @@ export function useKeyboardShortcuts() {
       if (isInput) return;
 
       if (e.key === "Escape") {
-        document.dispatchEvent(new CustomEvent("medora:escape"));
+        document.dispatchEvent(new CustomEvent("clarinora:escape"));
         return;
       }
 
@@ -86,17 +86,17 @@ export function useKeyboardShortcuts() {
       if (currentStage === "ocr" || currentStage === "merge") {
         if (e.key === "j" || e.key === "ArrowDown" || e.key === "ArrowRight") {
           e.preventDefault();
-          document.dispatchEvent(new CustomEvent("medora:next"));
+          document.dispatchEvent(new CustomEvent("clarinora:next"));
           return;
         }
         if (e.key === "k" || e.key === "ArrowUp" || e.key === "ArrowLeft") {
           e.preventDefault();
-          document.dispatchEvent(new CustomEvent("medora:prev"));
+          document.dispatchEvent(new CustomEvent("clarinora:prev"));
           return;
         }
         if (e.key === "e") {
           e.preventDefault();
-          document.dispatchEvent(new CustomEvent("medora:edit"));
+          document.dispatchEvent(new CustomEvent("clarinora:edit"));
           return;
         }
       }
@@ -104,12 +104,12 @@ export function useKeyboardShortcuts() {
       if (currentStage === "ocr") {
         if (e.key === "r") {
           e.preventDefault();
-          document.dispatchEvent(new CustomEvent("medora:rerun"));
+          document.dispatchEvent(new CustomEvent("clarinora:rerun"));
           return;
         }
         if (e.key === " ") {
           e.preventDefault();
-          document.dispatchEvent(new CustomEvent("medora:toggle-expand"));
+          document.dispatchEvent(new CustomEvent("clarinora:toggle-expand"));
           return;
         }
       }

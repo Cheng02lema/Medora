@@ -1,10 +1,10 @@
 {
-  "name": "medora",
+  "name": "clarinora",
   "version": "1.0.0",
   "private": true,
-  "description": "Medora — 医疗病历数据提取工作台",
+  "description": "Clarinora 澄诺 — 诺研 Nuoyen 病历数据提取工作台",
   "main": "electron/main.js",
-  "author": "Medora",
+  "author": "Nuoyen",
   "scripts": {
     "dev:frontend": "npm --prefix frontend run dev",
     "dev:electron": "wait-on http://localhost:5173 && electron .",
@@ -24,9 +24,9 @@
     "wait-on": "^9.0.10"
   },
   "build": {
-    "appId": "com.medora.app",
-    "productName": "Medora",
-    "copyright": "Copyright © Medora",
+    "appId": "com.nuoyen.clarinora",
+    "productName": "Clarinora",
+    "copyright": "Copyright © Nuoyen",
     "directories": {
       "output": "release",
       "buildResources": "build"
@@ -83,7 +83,7 @@
       "darkModeSupport": true
     },
     "dmg": {
-      "title": "Medora"
+      "title": "Clarinora"
     },
     "win": {
       "target": [
@@ -99,7 +99,7 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "shortcutName": "Medora"
+      "shortcutName": "Clarinora"
     },
     "linux": {
       "target": [

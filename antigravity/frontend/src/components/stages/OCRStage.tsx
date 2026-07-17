@@ -131,17 +131,17 @@ export default function OCRStage() {
     };
     const toggleExpand = () => setAllExpanded((e) => !e);
 
-    document.addEventListener("medora:next", next);
-    document.addEventListener("medora:prev", prev);
-    document.addEventListener("medora:edit", edit);
-    document.addEventListener("medora:rerun", rerun);
-    document.addEventListener("medora:toggle-expand", toggleExpand);
+    document.addEventListener("clarinora:next", next);
+    document.addEventListener("clarinora:prev", prev);
+    document.addEventListener("clarinora:edit", edit);
+    document.addEventListener("clarinora:rerun", rerun);
+    document.addEventListener("clarinora:toggle-expand", toggleExpand);
     return () => {
-      document.removeEventListener("medora:next", next);
-      document.removeEventListener("medora:prev", prev);
-      document.removeEventListener("medora:edit", edit);
-      document.removeEventListener("medora:rerun", rerun);
-      document.removeEventListener("medora:toggle-expand", toggleExpand);
+      document.removeEventListener("clarinora:next", next);
+      document.removeEventListener("clarinora:prev", prev);
+      document.removeEventListener("clarinora:edit", edit);
+      document.removeEventListener("clarinora:rerun", rerun);
+      document.removeEventListener("clarinora:toggle-expand", toggleExpand);
     };
   }, [activeCardIdx, pages.length, viewMode]);
 

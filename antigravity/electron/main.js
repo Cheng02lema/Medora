@@ -1,4 +1,4 @@
-// Medora — Electron 主进程
+// Clarinora — Electron 主进程
 // 开发: Vite dev server + 本机 python3 后端
 // 生产: 加载 frontend/dist + resources 内 Python 源码/二进制
 
@@ -22,11 +22,11 @@ function resourcesRoot() {
 }
 
 function findPython() {
-  return process.env.MEDORA_PYTHON || process.env.MEDFLOW_PYTHON || "python3";
+  return process.env.CLARINORA_PYTHON || "python3";
 }
 
 function findBackendBinary() {
-  const name = process.platform === "win32" ? "medora-backend.exe" : "medora-backend";
+  const name = process.platform === "win32" ? "clarinora-backend.exe" : "clarinora-backend";
   const candidates = [
     path.join(process.resourcesPath || "", "backend", name),
     path.join(process.resourcesPath || "", name),
@@ -53,7 +53,7 @@ function startBackend() {
   const cwd = resourcesRoot();
   const env = {
     ...process.env,
-    MEDORA_PORT: String(BACKEND_PORT),
+    CLARINORA_PORT: String(BACKEND_PORT),
     PYTHONUNBUFFERED: "1",
     PYTHONPATH: cwd + path.delimiter + (process.env.PYTHONPATH || ""),
   };
@@ -186,9 +186,9 @@ if (!gotLock) {
           {
             role: "appMenu",
             submenu: [
-              { role: "about", label: "关于 Medora" },
+              { role: "about", label: "关于 Clarinora" },
               { type: "separator" },
-              { role: "quit", label: "退出 Medora" },
+              { role: "quit", label: "退出 Clarinora" },
             ],
           },
           { role: "editMenu" },

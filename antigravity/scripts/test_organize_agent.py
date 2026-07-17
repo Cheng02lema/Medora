@@ -35,7 +35,7 @@ def make_sample_pdf(path: Path, pages: int = 6) -> None:
 
 
 def load_agent_llm() -> dict:
-    """优先环境变量，其次 medora agent_llm，再次 mee api_config / extract。"""
+    """优先环境变量，其次 clarinora agent_llm，再次 mee api_config / extract。"""
     key = os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("AGENT_LLM_KEY") or ""
     provider = "DeepSeek"
     model = "deepseek-chat"
@@ -88,7 +88,7 @@ def test_tools_pdf_split() -> None:
         validate_layout,
     )
 
-    td = Path(tempfile.mkdtemp(prefix="medora_org_"))
+    td = Path(tempfile.mkdtemp(prefix="clarinora_org_"))
     try:
         work = td / "work"
         out = td / "out"
@@ -124,7 +124,7 @@ def test_rule_agent_pdf() -> None:
     from antigravity.backend.agent.organize_session import OrganizeSession
     from antigravity.backend.agent.organize_agent import run_agent_turn
 
-    td = Path(tempfile.mkdtemp(prefix="medora_org_"))
+    td = Path(tempfile.mkdtemp(prefix="clarinora_org_"))
     try:
         work = td / "work"
         out = td / "out"
@@ -164,7 +164,7 @@ def test_llm_agent_pdf(llm: dict) -> None:
         print("[SKIP] LLM agent: no api key")
         return
 
-    td = Path(tempfile.mkdtemp(prefix="medora_org_"))
+    td = Path(tempfile.mkdtemp(prefix="clarinora_org_"))
     try:
         work = td / "work"
         out = td / "out"
@@ -193,7 +193,7 @@ def test_llm_agent_pdf(llm: dict) -> None:
         print("[PASS] LLM+rules pdf pipeline")
 
         # 纯 LLM function-calling（避免「每N页」规则短路）
-        td2 = Path(tempfile.mkdtemp(prefix="medora_org_pure_"))
+        td2 = Path(tempfile.mkdtemp(prefix="clarinora_org_pure_"))
         try:
             w2, o2 = td2 / "work", td2 / "out"
             w2.mkdir()

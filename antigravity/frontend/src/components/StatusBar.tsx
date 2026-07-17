@@ -43,7 +43,7 @@ export default function StatusBar({
       {!isReconnecting && !isDisconnected && (
         <span style={{ color: "var(--success)" }}>已连接</span>
       )}
-      <span style={{ marginLeft: 12 }}>Medora v1.0</span>
+      <span style={{ marginLeft: 12 }}>澄诺 Clarinora v1.0</span>
     </div>
   );
 }

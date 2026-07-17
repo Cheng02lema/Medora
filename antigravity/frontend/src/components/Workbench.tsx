@@ -35,8 +35,8 @@ export default function Workbench() {
       useWorkbench.getState().refreshAll();
       addToast("info", "连接已恢复，数据已刷新");
     };
-    document.addEventListener("medora:reconnected", handler);
-    return () => document.removeEventListener("medora:reconnected", handler);
+    document.addEventListener("clarinora:reconnected", handler);
+    return () => document.removeEventListener("clarinora:reconnected", handler);
   }, [addToast]);
 
   // Esc 关闭帮助
@@ -44,8 +44,8 @@ export default function Workbench() {
     const handler = () => {
       if (showHelp) setShowHelp(false);
     };
-    document.addEventListener("medora:escape", handler);
-    return () => document.removeEventListener("medora:escape", handler);
+    document.addEventListener("clarinora:escape", handler);
+    return () => document.removeEventListener("clarinora:escape", handler);
   }, [showHelp]);
 
   // ? 键显示帮助
@@ -65,7 +65,7 @@ export default function Workbench() {
   // 离开页面提示
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
-      const hasDraft = Object.keys(localStorage).some((k) => k.startsWith("medora:draft:"));
+      const hasDraft = Object.keys(localStorage).some((k) => k.startsWith("clarinora:draft:"));
       if (hasDraft) {
         e.preventDefault();
         e.returnValue = "";

@@ -1,4 +1,4 @@
-// Medora API 客户端 + WebSocket
+// Clarinora API 客户端 + WebSocket
 
 const BASE_URL = "http://127.0.0.1:8765";
 

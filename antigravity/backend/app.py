@@ -27,7 +27,7 @@ async def _lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Medora Backend", lifespan=_lifespan)
+app = FastAPI(title="Clarinora Backend", lifespan=_lifespan)
 
 app.add_middleware(
     CORSMiddleware,

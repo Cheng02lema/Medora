@@ -1,4 +1,6 @@
-# Medora
+# Clarinora
+
+> 诺研 Nuoyen · 澄诺 Clarinora
 
 医疗病历数据提取工作台：图片 / Excel / 文本 → OCR → 合并 → 大模型抽取 → 审核 → Excel 导出。
 

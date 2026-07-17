@@ -32,8 +32,8 @@ export default function TopBar({ onShowHelp }: { onShowHelp?: () => void }) {
       setShowOrganize(false);
       setMenuOpen(false);
     };
-    document.addEventListener("medora:escape", handler);
-    return () => document.removeEventListener("medora:escape", handler);
+    document.addEventListener("clarinora:escape", handler);
+    return () => document.removeEventListener("clarinora:escape", handler);
   }, [showSettings, showPrompt, showProjectSettings, showBatch, showOrganize, menuOpen]);
 
   // 点击外部关闭菜单
@@ -57,7 +57,7 @@ export default function TopBar({ onShowHelp }: { onShowHelp?: () => void }) {
             <rect x="7" y="2" width="6" height="10" rx="1" />
           </svg>
         </button>
-        <span className="brand">Medora</span>
+        <span className="brand">Clarinora</span>
         {currentProject && (
           <span style={{ fontSize: 12, color: "var(--text-3)", marginLeft: 4 }}>
             / {currentProject.name}

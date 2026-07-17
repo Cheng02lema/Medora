@@ -206,7 +206,7 @@ def web_search(query: str, max_results: int = 5) -> Dict[str, Any]:
             "no_html": 1,
             "skip_disambig": 1,
         })
-        req = urllib.request.Request(url, headers={"User-Agent": "MedoraOrganizeAgent/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": "ClarinoraOrganizeAgent/1.0"})
         with urllib.request.urlopen(req, timeout=12) as resp:
             data = json.loads(resp.read().decode("utf-8", errors="replace"))
         results = []

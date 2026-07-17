@@ -18,7 +18,7 @@ pyinstaller \
   --noconfirm \
   --clean \
   --onefile \
-  --name medora-backend \
+  --name clarinora-backend \
   --distpath "$OUT" \
   --workpath "$OUT/build" \
   --specpath "$OUT" \
@@ -35,4 +35,4 @@ pyinstaller \
   --hidden-import uvicorn.lifespan.on \
   "$ROOT/scripts/run-backend.py"
 
-echo "[build-backend] 输出: $OUT/medora-backend"
+echo "[build-backend] 输出: $OUT/clarinora-backend"

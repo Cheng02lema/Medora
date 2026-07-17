@@ -1,6 +1,6 @@
-# MedFlow Workbench · 交互与体验设计
+# Clarinora Workbench · 交互与体验设计
 
-> 配套文档:`MedFlow-Workbench-设计方案.md`
+> 配套文档:`Clarinora-Workbench-设计方案.md`
 > 本文档专注**动画效果、交互感受、用户体验**三个维度,细化到毫秒、像素、心理感知层级。
 
 ---
@@ -1471,4 +1471,4 @@ WebSocket 断开时:
 
 ---
 
-*本文档与 `MedFlow-Workbench-设计方案.md` 配合使用。设计方案定义"做什么",本文档定义"怎么感觉"。*
+*本文档与 `Clarinora-Workbench-设计方案.md` 配合使用。设计方案定义"做什么",本文档定义"怎么感觉"。*

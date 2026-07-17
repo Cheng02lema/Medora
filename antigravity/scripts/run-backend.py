@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Medora 后端启动入口（生产/开发通用）。"""
+"""Clarinora 后端启动入口（生产/开发通用）。"""
 
 from __future__ import annotations
 
@@ -45,13 +45,13 @@ def _bootstrap_paths() -> Path:
     if antigravity_dir.is_dir() and root_str not in sys.path:
         sys.path.insert(0, root_str)
 
-    os.environ.setdefault("MEDORA_ROOT", root_str)
+    os.environ.setdefault("CLARINORA_ROOT", root_str)
     return root
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Medora Backend")
-    parser.add_argument("--port", type=int, default=int(os.environ.get("MEDORA_PORT", os.environ.get("MEDFLOW_PORT", "8765"))))
+    parser = argparse.ArgumentParser(description="Clarinora Backend")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("CLARINORA_PORT", "8765")))
     parser.add_argument("--host", default="127.0.0.1")
     args = parser.parse_args()
 
