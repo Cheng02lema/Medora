@@ -29,7 +29,6 @@ export default function Workbench() {
     init();
   }, [init]);
 
-  // WebSocket 重连后刷新
   useEffect(() => {
     const handler = () => {
       useWorkbench.getState().refreshAll();
@@ -39,7 +38,6 @@ export default function Workbench() {
     return () => document.removeEventListener("clarinora:reconnected", handler);
   }, [addToast]);
 
-  // Esc 关闭帮助
   useEffect(() => {
     const handler = () => {
       if (showHelp) setShowHelp(false);
@@ -48,7 +46,6 @@ export default function Workbench() {
     return () => document.removeEventListener("clarinora:escape", handler);
   }, [showHelp]);
 
-  // ? 键显示帮助
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "?" || (e.shiftKey && e.key === "/")) {
@@ -62,7 +59,6 @@ export default function Workbench() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  // 离开页面提示
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
       const hasDraft = Object.keys(localStorage).some((k) => k.startsWith("clarinora:draft:"));
@@ -78,16 +74,20 @@ export default function Workbench() {
   return (
     <ErrorBoundary>
       <div className="app-root">
-        <TopBar onShowHelp={() => setShowHelp(true)} />
+        <TopBar
+          onShowHelp={() => setShowHelp(true)}
+          isReconnecting={isReconnecting}
+          isDisconnected={isDisconnected}
+        />
         <div className="main-area">
           <div className={`panel sidebar ${sidebarCollapsed ? "collapsed" : ""}`}>
             <ProjectSidebar />
           </div>
-          <div className="panel center-area">
+          <div className="center-area">
             <StageNav />
             <StageContent />
           </div>
-          <div className={`panel stage-panel ${panelCollapsed ? "collapsed" : ""}`}>
+          <div className={`stage-panel ${panelCollapsed ? "collapsed" : ""}`}>
             <StagePanel />
           </div>
         </div>

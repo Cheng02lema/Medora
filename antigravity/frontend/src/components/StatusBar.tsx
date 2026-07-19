@@ -9,6 +9,7 @@ export default function StatusBar({
 }) {
   const patients = useWorkbench((s) => s.patients);
   const runningTasks = useWorkbench((s) => s.runningTasks);
+  const settings = useWorkbench((s) => s.settings);
 
   const counts = {
     total: patients.length,
@@ -20,30 +21,51 @@ export default function StatusBar({
     stale: patients.filter((p) => p.status === "stale").length,
   };
   const activeTasks = Object.keys(runningTasks).length;
+  const parallel = settings?.execution?.max_parallel_patients ?? 1;
+
+  let conn = "已连接";
+  let connColor = "var(--mint)";
+  if (isReconnecting) {
+    conn = "重连中";
+    connColor = "var(--amber)";
+  } else if (isDisconnected) {
+    conn = "已断开";
+    connColor = "var(--red)";
+  }
 
   return (
     <div className="statusbar">
-      <span>共 {counts.total} 人</span>
-      <span style={{ color: "var(--pending)" }}>· 待处理 {counts.pending}</span>
-      <span style={{ color: "var(--primary)" }}>· 进行中 {counts.running}</span>
-      <span style={{ color: "var(--warning)" }}>· 待审核 {counts.review}</span>
-      <span style={{ color: "var(--warning)" }}>· 待更新 {counts.stale}</span>
-      <span style={{ color: "var(--success)" }}>· 完成 {counts.done}</span>
-      <span style={{ color: "var(--error)" }}>· 失败 {counts.error}</span>
+      <span>共 {counts.total}</span>
+      <span className="sep" />
+      <span>待处理 {counts.pending}</span>
+      <span className="sep" />
+      <span style={{ color: counts.running ? "var(--amber)" : undefined }}>
+        进行中 {counts.running}
+      </span>
+      <span className="sep" />
+      <span style={{ color: counts.review || counts.stale ? "var(--amber)" : undefined }}>
+        待审核 {counts.review}
+      </span>
+      <span className="sep" />
+      <span style={{ color: counts.done ? "var(--mint)" : undefined }}>
+        完成 {counts.done}
+      </span>
+      <span className="sep" />
+      <span style={{ color: counts.error ? "var(--red)" : undefined }}>
+        失败 {counts.error}
+      </span>
       {activeTasks > 0 && (
-        <span style={{ color: "var(--primary)" }}>· 活跃任务 {activeTasks}</span>
+        <>
+          <span className="sep" />
+          <span style={{ color: "var(--violet-2)" }}>活跃 {activeTasks}</span>
+        </>
       )}
-      <div style={{ flex: 1 }} />
-      {isReconnecting && (
-        <span style={{ color: "var(--warning)" }}>重连中…</span>
-      )}
-      {isDisconnected && (
-        <span style={{ color: "var(--error)" }}>已断开</span>
-      )}
-      {!isReconnecting && !isDisconnected && (
-        <span style={{ color: "var(--success)" }}>已连接</span>
-      )}
-      <span style={{ marginLeft: 12 }}>澄诺 Clarinora v1.0</span>
+      <div className="grow" />
+      <span>同时处理 {parallel}</span>
+      <span className="sep" />
+      <span style={{ color: connColor }}>{conn}</span>
+      <span className="sep" />
+      <span>Clarinora</span>
     </div>
   );
 }

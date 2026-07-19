@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, useRef } from "react";
 import { useWorkbench } from "../store/workbench";
 import { type DataSourceType } from "../api/client";
 import PathInput from "./PathInput";
@@ -13,13 +13,6 @@ const STATUS_LABELS: Record<string, string> = {
   stale: "待更新",
   review_pending: "待审核",
 };
-
-function colorForName(name: string): string {
-  const palette = ["#6366f1", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981", "#06b6d4", "#ef4444", "#3b82f6"];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
-  return palette[hash % palette.length];
-}
 
 export default function ProjectSidebar() {
   const projects = useWorkbench((s) => s.projects);
@@ -44,6 +37,7 @@ export default function ProjectSidebar() {
   const [importMode, setImportMode] = useState<"menu" | "folder" | "organize">("menu");
   const [importing, setImporting] = useState(false);
   const [showOrganize, setShowOrganize] = useState(false);
+  const lastClickIdx = useRef<number>(-1);
 
   const filtered = patients.filter((p) => {
     if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
@@ -70,53 +64,40 @@ export default function ProjectSidebar() {
 
   if (sidebarCollapsed) {
     return (
-      <>
-        {patients.map((p) => (
+      <div className="row-list">
+        {patients.map((p, i) => (
           <div
             key={p.id}
-            className={`patient-card ${selectedIds.includes(p.id) ? "selected" : ""}`}
-            style={{ padding: 8, justifyContent: "center" }}
+            className={`row-item ${selectedIds.includes(p.id) ? "selected" : ""}`}
+            style={{ gridTemplateColumns: "1fr", justifyItems: "center", padding: "10px 4px" }}
             onClick={(e) => selectPatient(p.id, e.ctrlKey || e.metaKey || e.shiftKey)}
             title={p.name}
           >
-            <div className="patient-avatar" style={{ width: 28, height: 28, fontSize: 12, background: colorForName(p.name) }}>
-              {p.name.slice(0, 1).toUpperCase()}
-            </div>
+            <span className={`status-dot ${p.status}`} />
           </div>
         ))}
-      </>
+      </div>
     );
   }
 
   return (
     <>
       {/* ─── 项目区 ─── */}
-      <div className="sidebar-header">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span className="h2">项目</span>
-          <button className="btn btn-sm" onClick={() => setShowNewProject(!showNewProject)}>+</button>
-        </div>
-        {currentProjectId && (
-          <div className="faint" style={{ marginTop: 6 }}>
-            模板在「更多 → 项目设置」
-            {!projects.find((p) => p.id === currentProjectId)?.has_template && (
-              <span style={{ color: "var(--warning)" }}> · 未配模板</span>
-            )}
-          </div>
-        )}
+      <div className="hd">
+        <span>项目</span>
+        <button className="btn btn-sm" onClick={() => setShowNewProject(!showNewProject)}>+</button>
       </div>
 
       {showNewProject && <NewProjectForm onCreate={createProject} onCancel={() => setShowNewProject(false)} />}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14, maxHeight: 200, overflowY: "auto" }}>
+      <div className="row-list" style={{ maxHeight: 160, flex: "0 0 auto" }}>
         {projects.length === 0 && (
           <div className="faint" style={{ padding: 8, textAlign: "center" }}>无项目，点击 + 创建</div>
         )}
-        {projects.map((proj) => (
+        {projects.map((proj, idx) => (
           <div
             key={proj.id}
-            className={`patient-card ${currentProjectId === proj.id ? "selected" : ""}`}
-            style={{ padding: "8px 10px" }}
+            className={`row-item ${currentProjectId === proj.id ? "selected" : ""}`}
             onClick={() => selectProject(proj.id)}
             onDoubleClick={(e) => {
               e.stopPropagation();
@@ -128,17 +109,15 @@ export default function ProjectSidebar() {
               if (confirm(`删除项目「${proj.name}」？工作区文件将一并删除。`)) deleteProject(proj.id);
             }}
           >
-            <div className="patient-avatar" style={{ width: 28, height: 28, fontSize: 12, background: colorForName(proj.name) }}>
-              {proj.name.slice(0, 1).toUpperCase()}
-            </div>
+            <span className="row-idx">{String(idx + 1).padStart(2, "0")}</span>
             <div className="patient-info">
               <div className="patient-name">{proj.name}</div>
               <div className="patient-meta">
-                {proj.patient_count} 位 · {proj.source_type === "image" ? "图片" : proj.source_type === "excel" ? "Excel" : "文本"}
-                {!proj.has_template && " · 无模板"}
-                {!proj.ocr_token_configured && proj.source_type === "image" && " · 无Token"}
+                {proj.patient_count} · {proj.source_type === "image" ? "图片" : proj.source_type === "excel" ? "Excel" : "文本"}
+                {!proj.has_template ? " · 无模板" : ""}
               </div>
             </div>
+            <span className={`status-dot ${proj.has_template ? "done" : "pending"}`} />
           </div>
         ))}
       </div>
@@ -148,10 +127,16 @@ export default function ProjectSidebar() {
       {/* ─── 病人区 ─── */}
       {currentProject ? (
         <>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-            <span className="h2">病人</span>
-            <span className="faint">{counts.all} 位</span>
+          <div className="hd">
+            <span>病人</span>
+            <b>{counts.all}</b>
           </div>
+          {selectedIds.length > 1 && (
+            <div className="selection-bar">
+              <span>已选 {selectedIds.length}</span>
+              <span style={{ color: "var(--mute)" }}>⌘ 多选 · Shift 范围</span>
+            </div>
+          )}
 
           <div className="sidebar-search">
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索病人…" />
@@ -176,7 +161,7 @@ export default function ProjectSidebar() {
             ))}
           </div>
 
-          <div style={{ marginBottom: 10 }}>
+          <div className="sidebar-tools">
             <button
               className="btn btn-sm btn-primary"
               style={{ width: "100%" }}
@@ -319,14 +304,31 @@ export default function ProjectSidebar() {
                 )}
               </div>
             )}
-            {filtered.map((p) => {
+            {filtered.map((p, idx) => {
               const task = runningTasks[p.id];
-              const progress = task ? (task.total > 0 ? (task.current / task.total) * 100 : 0) : (p.stage_progress && p.stage_progress.total > 0 ? (p.stage_progress.current / p.stage_progress.total) * 100 : 0);
+              const progress = task
+                ? (task.total > 0 ? (task.current / task.total) * 100 : 0)
+                : (p.stage_progress && p.stage_progress.total > 0
+                  ? (p.stage_progress.current / p.stage_progress.total) * 100
+                  : 0);
               return (
                 <div
                   key={p.id}
-                  className={`patient-card ${selectedIds.includes(p.id) ? "selected" : ""}`}
-                  onClick={(e) => selectPatient(p.id, e.ctrlKey || e.metaKey || e.shiftKey)}
+                  className={`row-item ${selectedIds.includes(p.id) ? "selected" : ""}`}
+                  onClick={(e) => {
+                    if (e.shiftKey && lastClickIdx.current >= 0) {
+                      const a = Math.min(lastClickIdx.current, idx);
+                      const b = Math.max(lastClickIdx.current, idx);
+                      const range = filtered.slice(a, b + 1).map((x) => x.id);
+                      useWorkbench.setState({
+                        selectedIds: range,
+                        currentPatientId: p.id,
+                      });
+                    } else {
+                      selectPatient(p.id, e.ctrlKey || e.metaKey);
+                      lastClickIdx.current = idx;
+                    }
+                  }}
                   onDoubleClick={(e) => {
                     e.stopPropagation();
                     const name = prompt("重命名病人", p.name);
@@ -337,26 +339,24 @@ export default function ProjectSidebar() {
                     if (confirm(`删除病人「${p.name}」？工作区文件将一并删除。`)) deletePatient(p.id);
                   }}
                 >
-                  <div className="patient-avatar" style={{ background: colorForName(p.name) }}>
-                    {p.name.slice(0, 1).toUpperCase()}
-                  </div>
+                  <span className="row-idx">{String(idx + 1).padStart(2, "0")}</span>
                   <div className="patient-info">
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span className="patient-name">{p.name}</span>
-                      <span className={`status-dot ${p.status}`} />
-                    </div>
+                    <div className="patient-name">{p.name}</div>
                     <div className="patient-meta">
                       {p.status === "error" && p.error
-                        ? `! ${p.error.slice(0, 30)}`
+                        ? p.error.slice(0, 28)
                         : task
-                        ? `${task.message}`
+                        ? task.message
                         : p.stage_progress
-                        ? `${p.stage_progress.message} · ${p.stage_progress.current}/${p.stage_progress.total}`
-                        : `${STATUS_LABELS[p.status] || p.status} · ${p.image_count} 张图`}
+                        ? `${p.stage_progress.current}/${p.stage_progress.total}`
+                        : `${STATUS_LABELS[p.status] || p.status}`}
                     </div>
+                  </div>
+                  <div className="row-trail">
+                    <span className={`status-dot ${p.status}`} />
                     {(progress > 0 || task) && (
                       <div className="progress-bar">
-                        <div className="progress-fill" style={{ width: `${progress}%` }} />
+                        <div className="progress-fill" style={{ width: `${Math.min(100, progress)}%` }} />
                       </div>
                     )}
                   </div>

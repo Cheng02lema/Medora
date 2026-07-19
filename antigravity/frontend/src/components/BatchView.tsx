@@ -1,110 +1,159 @@
 import { useWorkbench } from "../store/workbench";
 import { STAGE_LABELS, type StageKey } from "../api/client";
 
+const STATUS_LABELS: Record<string, string> = {
+  pending: "待处理",
+  running: "进行中",
+  done: "完成",
+  error: "失败",
+  stale: "待更新",
+  review_pending: "待审核",
+  skipped: "跳过",
+  "—": "—",
+};
+
 export default function BatchView() {
   const patients = useWorkbench((s) => s.patients);
   const selectedIds = useWorkbench((s) => s.selectedIds);
   const patientDetail = useWorkbench((s) => s.patientDetail);
   const currentStage = useWorkbench((s) => s.currentStage);
+  const runningTasks = useWorkbench((s) => s.runningTasks);
+  const settings = useWorkbench((s) => s.settings);
   const runBatch = useWorkbench((s) => s.runBatch);
   const selectPatient = useWorkbench((s) => s.selectPatient);
 
   const selectedPatients = patients.filter((p) => selectedIds.includes(p.id));
+  const parallel = settings?.execution?.max_parallel_patients ?? 1;
 
   if (selectedPatients.length === 0) return null;
 
-  // 统计当前阶段状态
   const stageStatuses = selectedPatients.map((p) => {
-    // 从 patientDetail 或 patients 列表获取阶段状态
+    if (runningTasks[p.id]) return "running";
     if (patientDetail && patientDetail.id === p.id) {
       return patientDetail.stages[currentStage]?.status || "pending";
     }
-    return "—";
+    if (p.status === "running") return "running";
+    if (p.status === "error") return "error";
+    if (p.status === "done") return "done";
+    return p.status || "pending";
   });
 
   const doneCount = stageStatuses.filter((s) => s === "done").length;
   const errorCount = stageStatuses.filter((s) => s === "error").length;
-  const pendingCount = stageStatuses.filter((s) => s === "pending" || s === "—").length;
+  const runningCount = stageStatuses.filter((s) => s === "running").length;
+  const pendingCount = selectedPatients.length - doneCount - errorCount - runningCount;
+
+  const stageLabel = STAGE_LABELS[currentStage as StageKey] || currentStage;
 
   return (
     <>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <div className="h1">批量操作</div>
-        <span className="sub">已选 {selectedPatients.length} 位病人 · 当前阶段: {STAGE_LABELS[currentStage]}</span>
+      <div className="hd" style={{ margin: "-12px -12px 12px", borderLeft: "none", borderRight: "none", borderTop: "none" }}>
+        <span>批量 · {stageLabel}</span>
+        <b>{selectedPatients.length} 人</b>
       </div>
 
-      {/* 统计 */}
-      <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
-        <div className="panel" style={{ padding: 16, flex: 1, textAlign: "center" }}>
-          <div className="faint">已完成</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "var(--success)" }}>{doneCount}</div>
+      <div className="kv" style={{ marginBottom: 12 }}>
+        <div className="cell">
+          <label>待处理</label>
+          <strong>{pendingCount}</strong>
         </div>
-        <div className="panel" style={{ padding: 16, flex: 1, textAlign: "center" }}>
-          <div className="faint">待处理</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "var(--pending)" }}>{pendingCount}</div>
+        <div className="cell">
+          <label>进行中</label>
+          <strong style={{ color: runningCount ? "var(--amber)" : undefined }}>{runningCount}</strong>
         </div>
-        <div className="panel" style={{ padding: 16, flex: 1, textAlign: "center" }}>
-          <div className="faint">失败</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "var(--error)" }}>{errorCount}</div>
+        <div className="cell">
+          <label>完成</label>
+          <strong style={{ color: doneCount ? "var(--mint)" : undefined }}>{doneCount}</strong>
+        </div>
+        <div className="cell">
+          <label>失败</label>
+          <strong style={{ color: errorCount ? "var(--red)" : undefined }}>{errorCount}</strong>
         </div>
       </div>
 
-      {/* 操作按钮 */}
+      <div className="faint mono" style={{ marginBottom: 12, lineHeight: 1.6 }}>
+        右侧执行将对 {selectedPatients.length} 人批量跑「{stageLabel}」
+        · 同时处理 {parallel} 人
+      </div>
+
       {currentStage !== "source" && currentStage !== "export" && (
-        <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
           <button
             className="btn btn-primary"
             onClick={() => runBatch(selectedIds, currentStage)}
           >
-            对选中 {selectedIds.length} 人执行 {STAGE_LABELS[currentStage]}
+            对 {selectedIds.length} 人执行{stageLabel}
           </button>
           <button
             className="btn"
             onClick={() => runBatch(selectedIds, currentStage, true)}
           >
-            ↻ 重新执行
+            重新执行
           </button>
         </div>
       )}
 
-      {/* 病人表格 */}
-      <div style={{ border: "1px solid var(--border)", borderRadius: 10, overflow: "hidden" }}>
+      <div style={{ border: "1px solid var(--line)", overflow: "hidden" }}>
         <table className="batch-table">
           <thead>
             <tr>
+              <th>ID</th>
               <th>病人</th>
-              <th>整体状态</th>
-              <th>{STAGE_LABELS[currentStage]} 状态</th>
-              <th>操作</th>
+              <th>整体</th>
+              <th>{stageLabel}</th>
+              <th>进度</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             {selectedPatients.map((p, idx) => {
               const stageStatus = stageStatuses[idx];
+              const task = runningTasks[p.id];
+              const prog =
+                task && task.total > 0
+                  ? Math.round((task.current / task.total) * 100)
+                  : p.stage_progress && p.stage_progress.total > 0
+                  ? Math.round((p.stage_progress.current / p.stage_progress.total) * 100)
+                  : stageStatus === "done"
+                  ? 100
+                  : 0;
               return (
-                <tr key={p.id}>
-                  <td style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span className={`status-dot ${p.status}`} />
-                    <span style={{ fontWeight: 600 }}>{p.name}</span>
+                <tr
+                  key={p.id}
+                  className={selectedIds[0] === p.id && selectedIds.length === 1 ? "sel" : ""}
+                  onClick={() => selectPatient(p.id, false)}
+                >
+                  <td className="mono" style={{ color: "var(--mute)", fontSize: 11 }}>
+                    {p.id.slice(0, 6).toUpperCase()}
+                  </td>
+                  <td style={{ fontWeight: 500 }}>{p.name}</td>
+                  <td>
+                    <span className={`st ${p.status === "running" ? "run" : p.status === "done" ? "done" : p.status === "error" ? "err" : "wait"}`}>
+                      <i />
+                      {STATUS_LABELS[p.status] || p.status}
+                    </span>
                   </td>
                   <td>
-                    <span style={{ fontSize: 11, color: "var(--text-2)" }}>{p.status}</span>
+                    <span className={`st ${stageStatus === "running" ? "run" : stageStatus === "done" ? "done" : stageStatus === "error" ? "err" : "wait"}`}>
+                      <i />
+                      {STATUS_LABELS[stageStatus] || stageStatus}
+                    </span>
                   </td>
                   <td>
-                    {stageStatus === "done" && <span style={{ color: "var(--success)" }}>✓ 完成</span>}
-                    {stageStatus === "error" && <span style={{ color: "var(--error)" }}>× 失败</span>}
-                    {stageStatus === "running" && <span style={{ color: "var(--primary)" }}>进行中</span>}
-                    {(stageStatus === "pending" || stageStatus === "—" || stageStatus === "skipped") && (
-                      <span style={{ color: "var(--text-3)" }}>{stageStatus === "skipped" ? "已跳过" : "待处理"}</span>
-                    )}
-                    {stageStatus === "stale" && <span style={{ color: "var(--warning)" }}>! 待更新</span>}
+                    <span className="bar" style={{ marginRight: 8 }}>
+                      <span style={{ display: "block", height: "100%", width: `${prog}%`, background: "var(--violet)" }} />
+                    </span>
+                    <span className="mono" style={{ fontSize: 11 }}>{prog}%</span>
                   </td>
                   <td>
                     <button
                       className="btn btn-sm"
-                      onClick={() => selectPatient(p.id, false)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        selectPatient(p.id, false);
+                      }}
                     >
-                      查看详情
+                      查看
                     </button>
                   </td>
                 </tr>

@@ -24,9 +24,13 @@ export default function StageContent() {
     return (
       <div className="stage-content">
         <div className="empty-state">
-          <div className="empty-icon">+</div>
+          <div className="empty-icon">01</div>
           <div className="empty-title">先创建或选择一个项目</div>
-          <div className="empty-desc">左侧点击 + 新建项目，再导入病人</div>
+          <div className="empty-desc">
+            左侧点击 + 新建项目，再导入病人。
+            <br />
+            路径：项目 → 导入 → 选病人 → 按阶段处理
+          </div>
         </div>
       </div>
     );
@@ -36,12 +40,18 @@ export default function StageContent() {
     return (
       <div className="stage-content">
         <div className="empty-state">
-          <div className="empty-icon">·</div>
+          <div className="empty-icon">02</div>
           <div className="empty-title">选择一位病人开始</div>
           <div className="empty-desc">
-            项目「{currentProject?.name || ""}」· 从左侧导入或选择病人
+            项目「{currentProject?.name || ""}」
             <br />
-            支持图片文件夹 / Excel 拆分 / 文本文件
+            从左侧导入或选择病人 · 支持图片 / Excel / 文本
+            {!currentProject?.has_template && (
+              <>
+                <br />
+                <span style={{ color: "var(--amber)" }}>尚未配置抽取模板，可在「更多 → 项目设置」配置</span>
+              </>
+            )}
           </div>
         </div>
       </div>
